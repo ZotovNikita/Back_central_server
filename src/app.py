@@ -3,7 +3,10 @@ from src.api.base_router import base_router
 
 
 tags = [
-    ...
+    {
+      "name": "authorize",
+      "description": "Вход в админку по guid"  
+    },
 ]
 
 app = FastAPI(
