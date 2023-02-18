@@ -6,6 +6,9 @@ from src.utils.pattern import singleton
 class Settings(BaseSettings):
     host: str = 'localhost'
     port: int = 9999
+    
+    jwt_secret: str
+    jwt_algorithm: str
 
     class Config:
         env_file = '../.env'
