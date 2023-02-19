@@ -7,6 +7,12 @@ class Settings(BaseSettings):
     host: str = 'localhost'
     port: int = 9999
     
+    db_login: str
+    db_password: str
+    db_host: str
+    db_port: int
+    db_database: str
+    
     jwt_secret: str
     jwt_algorithm: str
 
