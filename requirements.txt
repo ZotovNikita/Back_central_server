@@ -5,3 +5,5 @@ python-dotenv
 psycopg2
 alembic
 python-jose
+passlib
+python-multipart
