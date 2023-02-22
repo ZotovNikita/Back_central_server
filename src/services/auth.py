@@ -39,7 +39,7 @@ class AuthService:
             payload = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
         except JWTError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Некорректный токен')
-        return payload.get('user_guid')
+        return {'user_guid': payload.get('user_guid')}
     
     def login(self, login: str, password_text: str) -> Optional[JwtToken]:
         user = (

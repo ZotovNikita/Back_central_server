@@ -2,6 +2,7 @@ from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 from fastapi_utils.guid_type import GUID
 from src.models.base import Base
+from src.models import users, bots, roles
 
 
 class Relations(Base):
