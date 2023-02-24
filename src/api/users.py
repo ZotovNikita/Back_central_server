@@ -4,11 +4,13 @@ from pydantic import UUID4
 from src.services.users import UsersService
 from src.models.schemas.users.users_request import UsersRequest
 from src.models.schemas.users.users_response import UsersResponse
+from src.api.utils.admin_checker import IS_ADMIN
 
 
 router = APIRouter(
     prefix='/users',
     tags=['users'],
+    dependencies=[Depends(IS_ADMIN)]
 )
 
 
