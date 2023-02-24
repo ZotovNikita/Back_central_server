@@ -2,7 +2,7 @@ from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 from fastapi_utils.guid_type import GUID
 from src.models.base import Base
-from src.models import users, bots, roles
+from src.models import users, bots
 
 
 class Relations(Base):
@@ -10,7 +10,5 @@ class Relations(Base):
     id = Column(Integer, primary_key=True)
     user_guid = Column(GUID, ForeignKey('users.guid'), nullable=False)
     bot_guid = Column(GUID, ForeignKey('bots.guid'), nullable=False)
-    role_guid = Column(GUID, ForeignKey('roles.guid'), nullable=False)
-    user = relationship('Users', backref='relation-user')
-    bot = relationship('Bots', backref='relation-bot')
-    role = relationship('Roles', backref='relation-role')
+    user = relationship('Users', backref='relations_user')
+    bot = relationship('Bots', backref='relations_bot')
