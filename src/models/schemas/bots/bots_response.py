@@ -1,9 +1,10 @@
 from pydantic import BaseModel, UUID4
 
 
-class UsersResponse(BaseModel):
+class BotsResponse(BaseModel):
     guid: UUID4
-    login: str
+    name: str
+    model_name: str
 
     class Config:
         orm_mode = True

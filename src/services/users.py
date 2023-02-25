@@ -54,7 +54,6 @@ class UsersService:
 
         self.session.add(user)
         self.session.commit()
-
         return user
 
     def update(self, guid: str, request: UsersRequest) -> Users:
@@ -72,9 +71,7 @@ class UsersService:
         setattr(user, 'login', request.login)
         setattr(user, 'password_hashed', hash_password(request.password_text))
 
-        self.session.delete(user)
         self.session.commit()
-        
         return user
 
     def delete(self, guid: str) -> None:
