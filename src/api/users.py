@@ -14,26 +14,26 @@ router = APIRouter(
 )
 
 
-@router.get('/get/{guid}', response_model=UsersResponse, name='Получить пользователя')
+@router.get('/{guid}', response_model=UsersResponse, name='Получить пользователя')
 def get(guid: UUID4, service: UsersService = Depends()):
     return service.get(guid)
 
 
-@router.get('/all', response_model=List[UsersResponse], name='Получить всех пользователей')
+@router.get('/', response_model=List[UsersResponse], name='Получить всех пользователей')
 def all(service: UsersService = Depends()):
     return service.all()
 
 
-@router.post('/register', response_model=UsersResponse, status_code=status.HTTP_201_CREATED, name='Регистрация пользователя')
+@router.post('/', response_model=UsersResponse, status_code=status.HTTP_201_CREATED, name='Регистрация пользователя')
 def register(request: UsersRequest, service: UsersService = Depends()):
     return service.add(request)
 
 
-@router.post('/update/{guid}', response_model=UsersResponse, name='Изменить пользователя')
+@router.post('/{guid}', response_model=UsersResponse, name='Изменить пользователя')
 def update(guid: UUID4, request: UsersRequest, service: UsersService = Depends()):
     return service.update(guid, request)
 
 
-@router.delete('/delete/{guid}', status_code=status.HTTP_204_NO_CONTENT, name='Удалить пользователя')
+@router.delete('/{guid}', status_code=status.HTTP_204_NO_CONTENT, name='Удалить пользователя')
 def delete(guid: UUID4, service: UsersService = Depends()):
     return service.delete(guid)

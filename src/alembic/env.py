@@ -6,7 +6,7 @@ if (dir := str(Path(os.getcwd()).parent)) not in sys.path:
 
 from alembic import context
 from src.db.db import connection_string, engine
-from src.models import base, users, bots, roles, relations
+from src.models import base, users, bots, relations
 
 
 target_metadata = base.Base.metadata
