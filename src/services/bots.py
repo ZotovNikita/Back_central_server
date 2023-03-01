@@ -73,7 +73,6 @@ class BotsService:
         self.session.commit()
     
     def allowed_bots_for_user(self, current_user: dict) -> List[Bots]:
-        # ! надо ли делать response схему?
         bots = (
             self.session
             .query(Bots.name, Bots.guid)

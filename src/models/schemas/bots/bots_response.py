@@ -8,3 +8,11 @@ class BotsResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class BotsAllowedResponse(BaseModel):
+    guid: UUID4
+    name: str
+
+    class Config:
+        orm_mode = True
