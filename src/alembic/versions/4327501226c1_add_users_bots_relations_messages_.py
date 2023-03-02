@@ -1,19 +1,20 @@
 """add users, bots, relations, messages, intents
 
-Revision ID: 6c4b101c9ed8
+Revision ID: 4327501226c1
 Revises: 
-Create Date: 2023-03-01 20:47:30.090595
+Create Date: 2023-03-01 22:26:05.594422
 
 """
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.schema import Sequence, CreateSequence
 from fastapi_utils.guid_type import GUID, GUID_DEFAULT_SQLITE
 from src.core.settings import settings
 from src.services.utils.secure import hash_password
 
 
 # revision identifiers, used by Alembic.
-revision = '6c4b101c9ed8'
+revision = '4327501226c1'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -45,13 +46,14 @@ def upgrade() -> None:
     op.create_table('intents',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('name', sa.String(), nullable=False),
-        sa.Column('message', sa.Integer(), nullable=False),
+        sa.Column('message', sa.String(), nullable=False),
         sa.Column('bot_guid', GUID, nullable=False),
         sa.Column('created_by', GUID, nullable=False),
         sa.ForeignKeyConstraint(['bot_guid'], ['bots.guid'], ),
         sa.ForeignKeyConstraint(['created_by'], ['users.guid'], ),
         sa.PrimaryKeyConstraint('id')
     )
+    op.execute(CreateSequence(Sequence('intents_seq', start=0, minvalue=0, maxvalue=2147483647)))
     
     op.create_table('relations',
         sa.Column('id', sa.Integer(), nullable=False),
