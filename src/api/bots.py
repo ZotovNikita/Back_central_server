@@ -5,8 +5,6 @@ from src.services.auth import get_current_user
 from src.services.bots import BotsService
 from src.models.schemas.bots.bots_request import BotsRequest
 from src.models.schemas.bots.bots_response import BotsResponse, BotsAllowedResponse
-from src.models.schemas.bot_data.bot_data_request import BotDataRequest
-from src.models.schemas.bot_data.bot_data_response import BotDataResponse
 from src.api.utils.admin_checker import IS_ADMIN
 
 
@@ -47,15 +45,8 @@ def get(current_user: dict = Depends(get_current_user), service: BotsService = D
     return service.allowed_bots_for_user(current_user)
 
 
-@router.get('/intents/{bot_guid}', name='Тест получения интентов')
+@router.get('/intents/{bot_guid}', name='Получить интенты бота')
 def get(bot_guid: UUID4):
     print(bot_guid)
     data = {f'Intent {i}': f'Что-то {i}' for i in range(30)}
     return data
-
-
-# ! переместить?
-@router.post('/predict', response_model=BotDataResponse, name='Тест запроса от ботов')
-def predict(request: BotDataRequest):
-    msg = 'Done_' + request.message
-    return {'message': msg}
