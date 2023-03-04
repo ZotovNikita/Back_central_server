@@ -12,7 +12,7 @@ router = APIRouter(
 )
 
 
-# ! post/get ?
+# ! post / get(путь яндекса) ?
 @router.post('/predict', response_model=IntentsResponse, name='Предсказание интента от модели')
 def predict(request: ChatRequest, service: ChatService = Depends()):
     return service.predict_intent(request)

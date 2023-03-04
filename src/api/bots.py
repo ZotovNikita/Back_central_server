@@ -4,7 +4,7 @@ from pydantic import UUID4
 from src.services.auth import get_current_user
 from src.services.bots import BotsService
 from src.models.schemas.bots.bots_request import BotsRequest
-from src.models.schemas.bots.bots_response import BotsResponse, BotsAllowedResponse
+from src.models.schemas.bots.bots_response import BotsResponse
 from src.api.utils.admin_checker import IS_ADMIN
 
 
@@ -40,7 +40,7 @@ def delete(guid: UUID4, service: BotsService = Depends()):
     return service.delete(guid)
 
 
-@router.get('/allowed/', response_model=List[BotsAllowedResponse], name='Получить доступных пользователю ботов')
+@router.get('/allowed/', response_model=List[BotsResponse], name='Получить доступных пользователю ботов')
 def get(current_user: dict = Depends(get_current_user), service: BotsService = Depends()):
     return service.allowed_bots_for_user(current_user)
 
