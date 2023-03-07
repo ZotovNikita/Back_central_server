@@ -20,6 +20,10 @@ tags = [
       "name": "chat",
       "description": "Взаимодействие с чатом"
     },
+    {
+      "name": "intents",
+      "description": "Взаимодействие с интентами"
+    },
 ]
 
 app = FastAPI(

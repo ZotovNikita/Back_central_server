@@ -43,10 +43,3 @@ def delete(guid: UUID4, service: BotsService = Depends()):
 @router.get('/allowed/', response_model=List[BotsResponse], name='Получить доступных пользователю ботов')
 def get(current_user: dict = Depends(get_current_user), service: BotsService = Depends()):
     return service.allowed_bots_for_user(current_user)
-
-
-@router.get('/intents/{bot_guid}', name='Получить интенты бота')
-def get(bot_guid: UUID4):
-    print(bot_guid)
-    data = {f'Intent {i}': f'Что-то {i}' for i in range(30)}
-    return data
