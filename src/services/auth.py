@@ -45,6 +45,14 @@ class AuthService:
             'is_admin': payload.get('is_admin')
         }
     
+    @staticmethod
+    def is_valid_token(token: str) -> bool:
+        try:
+            jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
+        except JWTError:
+            return False
+        return True
+    
     def login(self, login: str, password_text: str) -> Optional[JwtToken]:
         user = (
             self.session

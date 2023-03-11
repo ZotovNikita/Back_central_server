@@ -17,8 +17,8 @@ tags = [
       "description": "Управление ботами"
     },
     {
-      "name": "chat",
-      "description": "Взаимодействие с чатом"
+      "name": "client_chat",
+      "description": "Взаимодействие с клиентским чатом"
     },
     {
       "name": "intents",
@@ -29,7 +29,7 @@ tags = [
 app = FastAPI(
     title='Центральный сервер',
     description='Здесь бамбук не курят.',
-    version='0.1.1',
+    version='0.1.2',
     openapi_tags=tags,
 )
 

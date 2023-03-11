@@ -1,15 +1,15 @@
 from fastapi import APIRouter, Depends
-from src.services.chat import ChatService
-from src.models.schemas.chat.chat_request import ChatRequest
+from src.services.client_chat import ClientChatService
+from src.models.schemas.client_chat.client_chat_request import ClientChatRequest
 from src.models.schemas.intents.intents_response import IntentsResponse
 
 
 router = APIRouter(
-    prefix='/chat',
-    tags=['chat'],
+    prefix='/client_chat',
+    tags=['client_chat'],
 )
 
 
 @router.post('/predict', response_model=IntentsResponse, name='Предсказание интента от модели')
-def predict(request: ChatRequest, service: ChatService = Depends()):
+def predict(request: ClientChatRequest, service: ClientChatService = Depends()):
     return service.predict_intent(request)

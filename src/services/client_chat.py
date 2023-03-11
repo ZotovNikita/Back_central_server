@@ -2,15 +2,15 @@ from fastapi import HTTPException, status, Depends
 from sqlalchemy.orm import Session
 from src.db.db import get_session
 from src.models.intents import Intents
-from src.models.schemas.chat.chat_request import ChatRequest
+from src.models.schemas.client_chat.client_chat_request import ClientChatRequest
 from src.services.ml import MLService
 
 
-class ChatService:
+class ClientChatService:
     def __init__(self, session: Session = Depends(get_session)):
         self.session = session
     
-    def predict_intent(self, request: ChatRequest) -> Intents:
+    def predict_intent(self, request: ClientChatRequest) -> Intents:
         intent_rank = MLService.predict(request.bot_guid, request.message)
         
         intent = (
