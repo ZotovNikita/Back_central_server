@@ -17,12 +17,16 @@ tags = [
       "description": "Управление ботами"
     },
     {
+      "name": "intents",
+      "description": "Взаимодействие с интентами"
+    },
+    {
       "name": "client_chat",
       "description": "Взаимодействие с клиентским чатом"
     },
     {
-      "name": "intents",
-      "description": "Взаимодействие с интентами"
+      "name": "admin_chat",
+      "description": "Взаимодействие с чатом в админ-панели"
     },
 ]
 
