@@ -5,6 +5,7 @@ from src.models.intents import Intents
 from src.models.schemas.admin_chat.admin_chat_request import AdminChatRequest
 from src.services.ml import MLService
 from src.services.intents import IntentsService
+from src.services.utils.checkers import is_command
 
 
 class AdminChatService:
@@ -15,3 +16,8 @@ class AdminChatService:
         intent_rank = MLService.predict(request.bot_guid, request.message)
         intent = IntentsService(self.session).get_by_guid_and_rank(request.bot_guid, intent_rank)
         return intent
+
+    def answer(self, request: AdminChatRequest) -> Intents:
+        if is_command(request.message):
+            return IntentsService(self.session).get_by_guid_and_msg(request.bot_guid, request.message)
+        return self.predict_intent(request)

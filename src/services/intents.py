@@ -22,6 +22,19 @@ class IntentsService:
         
         return intent
     
+    def get_by_guid_and_msg(self, bot_guid: str, message: str) -> Intents:
+        intent = (
+            self.session
+            .query(Intents)
+            .filter(Intents.bot_guid == bot_guid, Intents.name == message)
+            .one_or_none()
+        )
+        
+        if not intent:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Интент не найден')
+        
+        return intent
+    
     def all_intents_for_bot(self, bot_guid: str) -> List[Intents]:
         intents = (
             self.session

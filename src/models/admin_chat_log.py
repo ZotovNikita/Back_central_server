@@ -10,5 +10,5 @@ class AdminChatLog(Base):
     message = Column(String, nullable=False)
     user_guid = Column(GUID, ForeignKey('users.guid'), nullable=False)
     bot_guid = Column(GUID, ForeignKey('bots.guid'), nullable=False)
-    intent_rank = Column(Integer, nullable=True)  # ! неуникальные значения поля для foreign key
+    intent_rank = Column(Integer, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
