@@ -10,6 +10,6 @@ router = APIRouter(
 )
 
 
-@router.post('/predict', response_model=IntentsResponse, name='Предсказание интента от модели')
-def predict(request: ClientChatRequest, service: ClientChatService = Depends()):
-    return service.predict_intent(request)
+@router.post('/answer', response_model=IntentsResponse, name='Получить ответ от бота')
+def answer(request: ClientChatRequest, service: ClientChatService = Depends()):
+    return service.answer(request)
