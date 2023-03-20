@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from src.core.settings import settings
 from src.api.base_router import base_router
 
 
@@ -48,6 +49,8 @@ app = FastAPI(
     """,
     version='0.1.5',
     openapi_tags=tags,
+    docs_url=settings.docs_url,
+    redoc_url=settings.redoc_url,
 )
 
 app.add_middleware(

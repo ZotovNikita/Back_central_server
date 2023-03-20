@@ -6,6 +6,8 @@ from src.utils.pattern import singleton
 class Settings(BaseSettings):
     host: str = 'localhost'
     port: int = 9999
+    docs_url: str = '/docs'
+    redoc_url: str = '/redoc'
     
     db_login: str
     db_password: str
