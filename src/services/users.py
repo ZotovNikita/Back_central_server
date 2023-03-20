@@ -1,10 +1,19 @@
 from typing import List
+from pydantic import BaseModel
 from fastapi import HTTPException, status, Depends
 from sqlalchemy.orm import Session
 from src.db.db import get_session
+from src.models.base import Base
 from src.models.users import Users
 from src.models.schemas.users.users_request import UsersRequest
 from src.services.utils.secure import hash_password
+
+
+def create_by(model: Base, schema: BaseModel, user: dict) -> Base:
+    for field, value in schema:
+        setattr(model, field, value)
+    setattr(model, 'created_by', user.get('user_guid'))
+    return model
 
 
 class UsersService:

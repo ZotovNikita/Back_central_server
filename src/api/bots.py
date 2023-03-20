@@ -1,11 +1,11 @@
 from typing import List
 from fastapi import APIRouter, status, Depends
 from pydantic import UUID4
+from src.api.utils.admin_checker import IS_ADMIN
 from src.services.auth import get_current_user
 from src.services.bots import BotsService
 from src.models.schemas.bots.bots_request import BotsRequest
 from src.models.schemas.bots.bots_response import BotsResponse
-from src.api.utils.admin_checker import IS_ADMIN
 
 
 router = APIRouter(
