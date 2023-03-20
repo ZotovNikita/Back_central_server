@@ -28,12 +28,16 @@ tags = [
       "name": "admin_chat",
       "description": "Взаимодействие с чатом в админ-панели"
     },
+    {
+      "name": "relations",
+      "description": "Управление связями"
+    },
 ]
 
 app = FastAPI(
     title='Центральный сервер',
     description='Здесь бамбук не курят.',
-    version='0.1.2',
+    version='0.1.4',
     openapi_tags=tags,
 )
 
