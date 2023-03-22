@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from src.db.db import get_session
 from src.services.users import create_by
 from src.models.intents import Intents
-from src.models.schemas.intents.intents_request import IntentsRequest, IntentsRequestAdmin
+from src.models.schemas.intents.intents_request import IntentsRequest
 
 
 class IntentsService:
@@ -52,7 +52,7 @@ class IntentsService:
         
         return intent
 
-    def add(self, request: IntentsRequestAdmin, user: dict) -> Intents:
+    def add(self, request: IntentsRequest, user: dict) -> Intents:
         is_exist = (
             self.session
             .query(Intents)
@@ -63,12 +63,12 @@ class IntentsService:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT)
 
         intent = create_by(Intents(), request, user)
-
+    
         self.session.add(intent)
         self.session.commit()
         return intent
 
-    def update(self, id: int, request: IntentsRequestAdmin) -> Intents:
+    def update(self, id: int, request: IntentsRequest) -> Intents:
         intent = self.get(id)
         same_intent = self.get_by_bot_guid_and_name(request.bot_guid, request.name)
         
