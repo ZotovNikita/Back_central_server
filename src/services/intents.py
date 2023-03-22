@@ -137,7 +137,7 @@ class IntentsService:
         self.session.commit()
         return intent
 
-    def delete(self, bot_guid: str, name: str) -> None:
+    def delete_by_bot_guid_and_name(self, bot_guid: str, name: str) -> None:
         intent = self.get_by_bot_guid_and_name(bot_guid, name)
         
         if not intent:
