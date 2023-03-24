@@ -1,15 +1,15 @@
 from typing import List
 from fastapi import APIRouter, status, Depends
-from src.api.utils.admin_checker import IS_ADMIN
 from src.services.relations import RelationsService
 from src.models.schemas.relations.request import RelationsRequest
 from src.models.schemas.relations.response import RelationsResponse
+from src.dependencies import ADMIN_ONLY
 
 
 router = APIRouter(
     prefix='/relations',
     tags=['relations'],
-    dependencies=[Depends(IS_ADMIN)],
+    dependencies=[Depends(ADMIN_ONLY)],
 )
 
 

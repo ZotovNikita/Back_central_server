@@ -1,16 +1,16 @@
 from typing import List
 from fastapi import APIRouter, status, Depends
 from pydantic import UUID4
-from src.api.utils.admin_checker import IS_ADMIN
 from src.services.users import UsersService
 from src.models.schemas.users.users_request import UsersRequest
 from src.models.schemas.users.users_response import UsersResponse
+from src.dependencies import ADMIN_ONLY
 
 
 router = APIRouter(
     prefix='/users',
     tags=['users'],
-    dependencies=[Depends(IS_ADMIN)]
+    dependencies=[Depends(ADMIN_ONLY)]
 )
 
 

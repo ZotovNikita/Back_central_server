@@ -139,9 +139,9 @@ class IntentsService:
 
     def delete_by_bot_guid_and_name(self, bot_guid: str, name: str) -> None:
         intent = self.get_by_bot_guid_and_name(bot_guid, name)
-        
+
         if not intent:
             raise HTTPException(status_code=404, detail='Интент не найден')
-        
+
         self.session.delete(intent)
         self.session.commit()

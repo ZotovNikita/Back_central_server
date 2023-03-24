@@ -9,7 +9,7 @@ from alembic import op
 import sqlalchemy as sa
 from fastapi_utils.guid_type import GUID, GUID_DEFAULT_SQLITE
 from src.core.settings import settings
-from src.services.utils.secure import hash_password
+from src.services.secure import SecureService
 
 
 # revision identifiers, used by Alembic.
@@ -32,7 +32,7 @@ def upgrade() -> None:
     op.bulk_insert(users, [{
         'guid': GUID_DEFAULT_SQLITE(),
         'login': settings.admin_login,
-        'password_hashed': hash_password(settings.admin_password),
+        'password_hashed': SecureService.hash_password(settings.admin_password),
     }])
     
     op.create_table('bots',

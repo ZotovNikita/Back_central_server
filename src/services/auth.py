@@ -8,7 +8,7 @@ from src.db.db import get_session
 from src.core.settings import settings
 from src.models.users import Users
 from src.models.schemas.utils.jwt_token import JwtToken
-from src.services.utils.secure import verify_password, is_admin_user
+from src.services.secure import SecureService
 
 
 oauth2_schema = OAuth2PasswordBearer(tokenUrl='/auth/login')
@@ -29,7 +29,7 @@ class AuthService:
             'iat': now,
             'exp': now + timedelta(seconds=settings.jwt_expires_seconds),
             'user_guid': str(user_guid),
-            'is_admin': is_admin_user(user_login)
+            'is_admin': SecureService.is_admin_user(user_login)
         }
         token = jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
         return JwtToken(access_token=token)
@@ -44,7 +44,7 @@ class AuthService:
             'user_guid': payload.get('user_guid'),
             'is_admin': payload.get('is_admin')
         }
-    
+
     @staticmethod
     def is_valid_token(token: str) -> bool:
         try:
@@ -52,7 +52,7 @@ class AuthService:
         except JWTError:
             return False
         return True
-    
+
     def login(self, login: str, password_text: str) -> Optional[JwtToken]:
         user = (
             self.session
@@ -60,10 +60,10 @@ class AuthService:
             .filter(Users.login == login)
             .first()
         )
-        
+
         if not user:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-        if not verify_password(password_text, user.password_hashed):
+        if not SecureService.verify_password(password_text, user.password_hashed):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-        
+
         return self.encode_token(user.guid, user.login)

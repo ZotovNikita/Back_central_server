@@ -17,10 +17,10 @@ class BotsService:
             .query(Bots)
             .all()
         )
-        
+
         if not bots:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-        
+
         return bots
 
     def get(self, guid: str) -> Bots:
@@ -30,10 +30,10 @@ class BotsService:
             .filter(Bots.guid == guid)
             .one_or_none()
         )
-        
+
         if not bot:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Бот не найден')
-        
+            raise HTTPException(status_code=404, detail='Бот не найден')
+
         return bot
 
     def add(self, request: BotsRequest) -> Bots:
@@ -71,7 +71,7 @@ class BotsService:
         bot = self.get(guid)
         self.session.delete(bot)
         self.session.commit()
-    
+
     def allowed_bots_for_user(self, current_user: dict) -> List[Bots]:
         bots = (
             self.session
@@ -81,5 +81,5 @@ class BotsService:
             .order_by(Bots.name.asc())
             .all()
         )
-        
+
         return bots

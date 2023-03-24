@@ -6,7 +6,7 @@ from src.db.db import get_session
 from src.models.base import Base
 from src.models.users import Users
 from src.models.schemas.users.users_request import UsersRequest
-from src.services.utils.secure import hash_password
+from src.services.secure import SecureService
 
 
 def create_by(model: Base, schema: BaseModel, user: dict) -> Base:
@@ -58,7 +58,7 @@ class UsersService:
 
         user = Users(
             login=request.login,
-            password_hashed=hash_password(request.password_text)
+            password_hashed=SecureService.hash_password(request.password_text)
         )
 
         self.session.add(user)
@@ -78,7 +78,7 @@ class UsersService:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT)
 
         setattr(user, 'login', request.login)
-        setattr(user, 'password_hashed', hash_password(request.password_text))
+        setattr(user, 'password_hashed', SecureService.hash_password(request.password_text))
 
         self.session.commit()
         return user

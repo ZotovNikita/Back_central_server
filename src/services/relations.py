@@ -9,7 +9,7 @@ from src.models.schemas.relations.request import RelationsRequest
 class RelationsService:
     def __init__(self, session: Session = Depends(get_session)):
         self.session = session
-    
+
     def get(self, id: int) -> Relations:
         relation = (
             self.session
@@ -17,10 +17,10 @@ class RelationsService:
             .filter(Relations.id == id)
             .one_or_none()
         )
-        
+
         if not relation:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Связь не найдена')
-        
+            raise HTTPException(status_code=404, detail='Связь не найдена')
+
         return relation
 
     def all(self) -> List[Relations]:
@@ -29,10 +29,10 @@ class RelationsService:
             .query(Relations)
             .all()
         )
-        
+
         if not relations:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-        
+
         return relations
 
     def add(self, request: RelationsRequest, user: dict) -> Relations:
@@ -56,7 +56,7 @@ class RelationsService:
     def update(self, id: int, request: RelationsRequest) -> Relations:
         relation = self.get(id)
         same_relation = self.get(request.id)
-        
+
         if same_relation and id != same_relation.id:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT)
 

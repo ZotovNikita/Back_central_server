@@ -7,7 +7,7 @@ from src.models.schemas.admin_chat.admin_chat_request import AdminChatRequest
 from src.services.ml import MLService
 from src.services.intents import IntentsService
 from src.services.bots import BotsService
-from src.services.utils.checkers import is_command
+from functions import is_command
 
 
 class AdminChatService:
