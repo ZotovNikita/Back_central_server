@@ -11,8 +11,9 @@ from src.utils.functions import is_command
 
 
 class AdminChatService:
-    def __init__(self, session: Session = Depends(get_session)):
+    def __init__(self, session: Session = Depends(get_session), intent_service: IntentsService = Depends()):
         self.session = session
+        self.intent_service = intent_service
     
     async def log(self, request: AdminChatRequest, user_info: dict, intent: Intents = None) -> None:
         await BotsService(self.session).get(request.bot_guid)
@@ -29,15 +30,14 @@ class AdminChatService:
     
     async def predict_intent(self, request: AdminChatRequest) -> Intents:
         intent_rank = await MLService.predict(request.bot_guid, request.message)
-        intent = await IntentsService(self.session).get_by_guid_and_rank(request.bot_guid, intent_rank)
-        return intent
+        return await self.intent_service.get_by_bot_guid_and_rank(request.bot_guid, intent_rank)
 
     async def answer(self, request: AdminChatRequest, current_user: dict) -> Intents:
         await self.log(request, current_user)
 
         answer: Intents
         if await is_command(request.message):
-            answer = await IntentsService(self.session).get_by_guid_and_msg(request.bot_guid, request.message)
+            answer = await self.intent_service.get_by_bot_guid_and_msg(request.bot_guid, request.message)
         else:
             answer = await self.predict_intent(request)
 

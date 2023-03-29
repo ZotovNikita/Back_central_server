@@ -1,156 +1,70 @@
-from typing import List, Optional
+from typing import List
 from fastapi import HTTPException, status, Depends
-from sqlalchemy.orm import Session
-from src.db.db import get_session
-from src.services.users import create_by
+from src.repositories.intents import IntentsRepository
 from src.models.intents import Intents
 from src.models.schemas.intents.intents_request import IntentsRequestDB
 
 
 class IntentsService:
-    def __init__(self, session: Session = Depends(get_session)):
-        self.session = session
+    def __init__(self, repository: IntentsRepository = Depends()):
+        self.repo = repository
 
-    async def get(self, id: int) -> Intents:
-        intent = (
-            self.session
-            .query(Intents)
-            .filter(Intents.id == id)
-            .one_or_none()
-        )
+    async def get_all(self) -> List[Intents]:
+        return await self.repo.get_all()
 
-        if not intent:
+    async def get_all_by_bot_guid(self, bot_guid: str) -> List[Intents]:
+        return await self.repo.get_all_by_bot_guid(bot_guid)
+
+    async def get_by_id(self, id: int) -> Intents:
+        if not (intent := await self.repo.get_by_id(id)):
             raise HTTPException(status_code=404, detail='Интент не найден')
-
         return intent
 
-    async def all(self) -> List[Intents]:
-        intents = (
-            self.session
-            .query(Intents)
-            .all()
-        )
+    async def get_by_bot_guid_and_name(self, bot_guid: str, name: str) -> Intents:
+        """
+        Интенты имеют уникальные name для каждого бота, т.е. unique(name, bot_guid).
+        """
+        if not (intent := await self.repo.get_by_bot_guid_and_name(bot_guid, name)):
+            raise HTTPException(status_code=404, detail='Интент не найден')
+        return intent
 
-        if not intents:
-            raise HTTPException(status_code=404)
+    async def get_by_bot_guid_and_rank(self, bot_guid: str, intent_rank: int) -> Intents:
+        if not (intent := await self.repo.get_by_bot_guid_and_rank(bot_guid, intent_rank)):
+            raise HTTPException(status_code=404, detail='Интент не найден')
+        return intent
 
-        return intents
+    async def get_by_bot_guid_and_msg(self, bot_guid: str, message: str) -> Intents:
+        """
+        Использовать, если нужно найти команду.
+        """
+        if not (intent := await self.repo.get_by_bot_guid_and_msg(bot_guid, message)):
+            raise HTTPException(status_code=404, detail='Интент не найден')
+        return intent
 
     async def add(self, request: IntentsRequestDB, user: dict) -> Intents:
         if request.rank != -1:
             request.rank = await self.find_intent_rank(request.bot_guid)
 
-        is_exist = (
-            self.session
-            .query(Intents)
-            .filter_by(bot_guid=request.bot_guid, name=request.name)
-            .count()
-        )
-        if is_exist:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT)
+        if await self.repo.get_by_bot_guid_and_name(request.bot_guid, request.name):
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                                detail='Полученные данные конфликтуют с существующим интентом')
 
-        intent = await create_by(Intents(), request, user)
+        return await self.repo.add(request, user.get('user_guid'))
 
-        self.session.add(intent)
-        self.session.commit()
-        return intent
-
-    async def update(self, id: int, request: IntentsRequestDB) -> Intents:
-        intent = await self.get(id)
-        same_intent = await self.get_by_bot_guid_and_name(request.bot_guid, request.name)
-
-        if same_intent and id != same_intent.id:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT)
-
-        for field, value in request:
-            setattr(intent, field, value)
-
-        self.session.commit()
-        return intent
-
-    async def delete(self, id: int) -> None:
-        intent = await self.get(id)
-        self.session.delete(intent)
-        self.session.commit()
-
-    async def all_intents_for_bot(self, bot_guid: str) -> List[Intents]:
-        intents = (
-            self.session
-            .query(Intents)
-            .filter(Intents.bot_guid == bot_guid)
-            .order_by(Intents.rank.asc())
-            .all()
-        )
-
-        return intents
-
-    async def get_by_bot_guid_and_name(self, bot_guid: str, name: str) -> Optional[Intents]:
-        """
-        Интенты имеют уникальные name для каждого бота, т.е. unique(name, bot_guid).
-        """
-        intent = (
-            self.session
-            .query(Intents)
-            .filter_by(bot_guid=bot_guid, name=name)
-            .one_or_none()
-        )
-
-        return intent
-
-    async def get_by_guid_and_rank(self, bot_guid: str, intent_rank: int) -> Intents:
-        intent = (
-            self.session
-            .query(Intents)
-            .filter(Intents.bot_guid == bot_guid, Intents.rank == intent_rank)
-            .one_or_none()
-        )
-
-        if not intent:
-            raise HTTPException(status_code=404, detail='Интент не найден')
-
-        return intent
-
-    async def get_by_guid_and_msg(self, bot_guid: str, message: str) -> Intents:
-        intent = (
-            self.session
-            .query(Intents)
-            .filter(Intents.bot_guid == bot_guid, Intents.name == message)
-            .one_or_none()
-        )
-
-        if not intent:
-            raise HTTPException(status_code=404, detail='Интент не найден')
-
-        return intent
-
-    async def update_by_bot_guid_and_name(self, bot_guid: str, name: str, request: IntentsRequestDB) -> Intents:
-        intent = await self.get_by_bot_guid_and_name(bot_guid, name)
-
-        if not intent:
-            raise HTTPException(status_code=404, detail='Интент не найден')
-
-        same_intent = await self.get_by_bot_guid_and_name(request.bot_guid, request.name)
+    async def update(self, intent: Intents, request: IntentsRequestDB) -> Intents:
+        same_intent = await self.repo.get_by_bot_guid_and_name(request.bot_guid, request.name)
 
         if same_intent and intent.id != same_intent.id:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT)
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                                detail='Полученные данные конфликтуют с существующим интентом')
 
-        for field, value in request:
-            setattr(intent, field, value)
+        return await self.repo.update(intent, request)
 
-        self.session.commit()
-        return intent
-
-    async def delete_by_bot_guid_and_name(self, bot_guid: str, name: str) -> None:
-        intent = await self.get_by_bot_guid_and_name(bot_guid, name)
-
-        if not intent:
-            raise HTTPException(status_code=404, detail='Интент не найден')
-
-        self.session.delete(intent)
-        self.session.commit()
+    async def delete(self, intent: Intents) -> None:
+        await self.repo.delete(intent)
 
     async def find_intent_rank(self, bot_guid: str) -> int:
-        ranks = tuple(n.rank for n in await self.all_intents_for_bot(bot_guid) if n.rank > -1)
+        ranks = tuple(n.rank for n in await self.get_all_by_bot_guid(bot_guid) if n.rank > -1)
         for i, r in enumerate(ranks):
             if r != i:
                 return i

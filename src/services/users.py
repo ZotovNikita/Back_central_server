@@ -9,6 +9,7 @@ from src.models.schemas.users.users_request import UsersRequest
 from src.services.secure import SecureService
 
 
+# TODO: заменить/убрать?
 async def create_by(model: Base, schema: BaseModel, user: dict) -> Base:
     for field, value in schema:
         setattr(model, field, value)
