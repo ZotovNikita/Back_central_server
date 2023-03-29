@@ -4,13 +4,13 @@ from src.core.settings import settings
 
 class SecureService:
     @staticmethod
-    def hash_password(password: str) -> str:
+    async def hash_password(password: str) -> str:
         return pbkdf2_sha256.hash(password)
 
     @staticmethod
-    def verify_password(password_text: str, password_hash: str) -> bool:
+    async def verify_password(password_text: str, password_hash: str) -> bool:
         return pbkdf2_sha256.verify(password_text, password_hash)
 
     @staticmethod
-    def is_admin_user(user_login: str) -> bool:
+    async def is_admin_user(user_login: str) -> bool:
         return user_login == settings.admin_login

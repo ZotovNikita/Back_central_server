@@ -14,8 +14,8 @@ class ClientChatService:
     def __init__(self, session: Session = Depends(get_session)):
         self.session = session
 
-    def log(self, request: ClientChatRequest, intent: Intents = None) -> None:
-        BotsService(self.session).get(request.bot_guid)
+    async def log(self, request: ClientChatRequest, intent: Intents = None) -> None:
+        await BotsService(self.session).get(request.bot_guid)
 
         rec = ClientChatLog(
             message=request.message,
@@ -28,19 +28,19 @@ class ClientChatService:
         self.session.add(rec)
         self.session.commit()
 
-    def predict_intent(self, request: ClientChatRequest) -> Intents:
-        intent_rank = MLService.predict(request.bot_guid, request.message)
-        intent = IntentsService(self.session).get_by_guid_and_rank(request.bot_guid, intent_rank)
+    async def predict_intent(self, request: ClientChatRequest) -> Intents:
+        intent_rank = await MLService.predict(request.bot_guid, request.message)
+        intent = await IntentsService(self.session).get_by_guid_and_rank(request.bot_guid, intent_rank)
         return intent
 
-    def answer(self, request: ClientChatRequest) -> Intents:
-        self.log(request)
+    async def answer(self, request: ClientChatRequest) -> Intents:
+        await self.log(request)
 
         answer: Intents
-        if is_command(request.message):
-            answer = IntentsService(self.session).get_by_guid_and_msg(request.bot_guid, request.message)
+        if await is_command(request.message):
+            answer = await IntentsService(self.session).get_by_guid_and_msg(request.bot_guid, request.message)
         else:
-            answer = self.predict_intent(request)
+            answer = await self.predict_intent(request)
 
-        self.log(request, answer)
+        await self.log(request, answer)
         return answer

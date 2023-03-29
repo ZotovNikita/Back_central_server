@@ -15,48 +15,48 @@ router = APIRouter(
 
 
 @router.get('/w/{id}', response_model=IntentsResponse, name='(!) Получить интент по id', dependencies=[Depends(ADMIN_ONLY)])
-def get(id: int, service: IntentsService = Depends()):
-    return service.get(id)
+async def get(id: int, service: IntentsService = Depends()):
+    return await service.get(id)
 
 
 @router.get('/w', response_model=List[IntentsResponse], name='(!) Получить все интенты', dependencies=[Depends(ADMIN_ONLY)])
-def all(service: IntentsService = Depends()):
-    return service.all()
+async def all(service: IntentsService = Depends()):
+    return await service.all()
 
 
 @router.post('/w', response_model=IntentsResponse, status_code=status.HTTP_201_CREATED, name='(!) Добавить интент', dependencies=[Depends(ADMIN_ONLY)])
-def add(request: IntentsRequestDB, service: IntentsService = Depends(), user: dict = Depends(AUTHORIZED)):
-    return service.add(request, user)
+async def add(request: IntentsRequestDB, service: IntentsService = Depends(), user: dict = Depends(AUTHORIZED)):
+    return await service.add(request, user)
 
 
 @router.post('/w/{id}', response_model=IntentsResponse, name='(!) Изменить интент', dependencies=[Depends(ADMIN_ONLY)])
-def update(id: int, request: IntentsRequestDB, service: IntentsService = Depends()):
-    return service.update(id, request)
+async def update(id: int, request: IntentsRequestDB, service: IntentsService = Depends()):
+    return await service.update(id, request)
 
 
 @router.delete('/w/{id}', status_code=status.HTTP_204_NO_CONTENT, name='(!) Удалить интент', dependencies=[Depends(ADMIN_ONLY)])
-def delete(id: int, service: IntentsService = Depends()):
-    return service.delete(id)
+async def delete(id: int, service: IntentsService = Depends()):
+    return await service.delete(id)
 
 
 @router.get('/allowed/{bot_guid}', response_model=List[IntentsResponse], name='Получить все интенты бота')
-def get(bot_guid: UUID4, service: IntentsService = Depends()):
-    return service.all_intents_for_bot(bot_guid)
+async def get(bot_guid: UUID4, service: IntentsService = Depends()):
+    return await service.all_intents_for_bot(bot_guid)
 
 
 @router.post('/form', response_model=IntentsResponse, status_code=status.HTTP_201_CREATED, name='Добавить интент по форме')
-def add(request: IntentsRequestForm, service: IntentsService = Depends(), user: dict = Depends(AUTHORIZED)):
+async def add(request: IntentsRequestForm, service: IntentsService = Depends(), user: dict = Depends(AUTHORIZED)):
     # ! по request.examples обучить модель ?
-    return service.add(request, user)
+    return await service.add(request, user)
 
 
 @router.post('/form/{bot_guid}/{name}', response_model=IntentsResponse, name='Изменить интент по форме')
-def update(bot_guid: UUID4, name: str, request: IntentsRequestForm, service: IntentsService = Depends()):
+async def update(bot_guid: UUID4, name: str, request: IntentsRequestForm, service: IntentsService = Depends()):
     # ! по request.examples переобучить модель ?
-    return service.update_by_bot_guid_and_name(bot_guid, name, request)
+    return await service.update_by_bot_guid_and_name(bot_guid, name, request)
 
 
 @router.delete('/form/{bot_guid}/{name}', status_code=status.HTTP_204_NO_CONTENT, name='Удалить интент по форме')
-def delete(bot_guid: UUID4, name: str, service: IntentsService = Depends()):
+async def delete(bot_guid: UUID4, name: str, service: IntentsService = Depends()):
     # ! что-то происходит в модели ?
-    return service.delete_by_bot_guid_and_name(bot_guid, name)
+    return await service.delete_by_bot_guid_and_name(bot_guid, name)

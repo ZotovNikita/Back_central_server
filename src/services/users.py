@@ -9,7 +9,7 @@ from src.models.schemas.users.users_request import UsersRequest
 from src.services.secure import SecureService
 
 
-def create_by(model: Base, schema: BaseModel, user: dict) -> Base:
+async def create_by(model: Base, schema: BaseModel, user: dict) -> Base:
     for field, value in schema:
         setattr(model, field, value)
     setattr(model, 'created_by', user.get('user_guid'))
@@ -20,7 +20,7 @@ class UsersService:
     def __init__(self, session: Session = Depends(get_session)):
         self.session = session
 
-    def all(self) -> List[Users]:
+    async def all(self) -> List[Users]:
         users = (
             self.session
             .query(Users)
@@ -32,7 +32,7 @@ class UsersService:
 
         return users
 
-    def get(self, guid: str) -> Users:
+    async def get(self, guid: str) -> Users:
         user = (
             self.session
             .query(Users)
@@ -41,12 +41,11 @@ class UsersService:
         )
 
         if not user:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail='Пользователь не найден')
+            raise HTTPException(status_code=404, detail='Пользователь не найден')
 
         return user
 
-    def add(self, request: UsersRequest) -> Users:
+    async def add(self, request: UsersRequest) -> Users:
         is_exist = (
             self.session
             .query(Users)
@@ -58,17 +57,17 @@ class UsersService:
 
         user = Users(
             login=request.login,
-            password_hashed=SecureService.hash_password(request.password_text)
+            password_hashed=await SecureService.hash_password(request.password_text)
         )
 
         self.session.add(user)
         self.session.commit()
         return user
 
-    def update(self, guid: str, request: UsersRequest) -> Users:
-        user = self.get(guid)
+    async def update(self, guid: str, request: UsersRequest) -> Users:
+        user = await self.get(guid)
 
-        with_same_login = (
+        with_same_login: Users = (
             self.session
             .query(Users)
             .filter(Users.login == request.login)
@@ -78,12 +77,12 @@ class UsersService:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT)
 
         setattr(user, 'login', request.login)
-        setattr(user, 'password_hashed', SecureService.hash_password(request.password_text))
+        setattr(user, 'password_hashed', await SecureService.hash_password(request.password_text))
 
         self.session.commit()
         return user
 
-    def delete(self, guid: str) -> None:
-        user = self.get(guid)
+    async def delete(self, guid: str) -> None:
+        user = await self.get(guid)
         self.session.delete(user)
         self.session.commit()

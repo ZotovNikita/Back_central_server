@@ -10,7 +10,7 @@ class RelationsService:
     def __init__(self, session: Session = Depends(get_session)):
         self.session = session
 
-    def get(self, id: int) -> Relations:
+    async def get(self, id: int) -> Relations:
         relation = (
             self.session
             .query(Relations)
@@ -23,7 +23,7 @@ class RelationsService:
 
         return relation
 
-    def all(self) -> List[Relations]:
+    async def all(self) -> List[Relations]:
         relations = (
             self.session
             .query(Relations)
@@ -35,7 +35,7 @@ class RelationsService:
 
         return relations
 
-    def add(self, request: RelationsRequest, user: dict) -> Relations:
+    async def add(self, request: RelationsRequest, user: dict) -> Relations:
         is_exist = (
             self.session
             .query(Relations)
@@ -53,9 +53,9 @@ class RelationsService:
         self.session.commit()
         return relation
 
-    def update(self, id: int, request: RelationsRequest) -> Relations:
-        relation = self.get(id)
-        same_relation = self.get(request.id)
+    async def update(self, id: int, request: RelationsRequest) -> Relations:
+        relation = await self.get(id)
+        same_relation = await self.get(request.id)
 
         if same_relation and id != same_relation.id:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT)
@@ -66,7 +66,7 @@ class RelationsService:
         self.session.commit()
         return relation
 
-    def delete(self, id: int) -> None:
-        relation = self.get(id)
+    async def delete(self, id: int) -> None:
+        relation = await self.get(id)
         self.session.delete(relation)
         self.session.commit()

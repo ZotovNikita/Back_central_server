@@ -15,25 +15,25 @@ router = APIRouter(
 
 
 @router.get('/{guid}', response_model=UsersResponse, name='Получить пользователя')
-def get(guid: UUID4, service: UsersService = Depends()):
-    return service.get(guid)
+async def get(guid: UUID4, service: UsersService = Depends()):
+    return await service.get(guid)
 
 
 @router.get('/', response_model=List[UsersResponse], name='Получить всех пользователей')
-def all(service: UsersService = Depends()):
-    return service.all()
+async def all(service: UsersService = Depends()):
+    return await service.all()
 
 
 @router.post('/', response_model=UsersResponse, status_code=status.HTTP_201_CREATED, name='Регистрация пользователя')
-def register(request: UsersRequest, service: UsersService = Depends()):
-    return service.add(request)
+async def register(request: UsersRequest, service: UsersService = Depends()):
+    return await service.add(request)
 
 
 @router.post('/{guid}', response_model=UsersResponse, name='Изменить пользователя')
-def update(guid: UUID4, request: UsersRequest, service: UsersService = Depends()):
-    return service.update(guid, request)
+async def update(guid: UUID4, request: UsersRequest, service: UsersService = Depends()):
+    return await service.update(guid, request)
 
 
 @router.delete('/{guid}', status_code=status.HTTP_204_NO_CONTENT, name='Удалить пользователя')
-def delete(guid: UUID4, service: UsersService = Depends()):
-    return service.delete(guid)
+async def delete(guid: UUID4, service: UsersService = Depends()):
+    return await service.delete(guid)

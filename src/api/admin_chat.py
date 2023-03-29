@@ -13,5 +13,5 @@ router = APIRouter(
 
 
 @router.post('/answer', response_model=IntentsResponse, name='Получить ответ от бота')
-def answer(request: AdminChatRequest, service: AdminChatService = Depends(), current_user: dict = Depends(AUTHORIZED)):
-    return service.answer(request, current_user)
+async def answer(request: AdminChatRequest, service: AdminChatService = Depends(), current_user: dict = Depends(AUTHORIZED)):
+    return await service.answer(request, current_user)

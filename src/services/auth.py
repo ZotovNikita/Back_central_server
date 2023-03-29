@@ -14,8 +14,8 @@ from src.services.secure import SecureService
 oauth2_schema = OAuth2PasswordBearer(tokenUrl='/auth/login')
 
 
-def get_current_user(token: str = Depends(oauth2_schema)) -> dict:
-    return AuthService.decode_token(token)
+async def get_current_user(token: str = Depends(oauth2_schema)) -> dict:
+    return await AuthService.decode_token(token)
 
 
 class AuthService:
@@ -23,19 +23,19 @@ class AuthService:
         self.session = session
 
     @staticmethod
-    def encode_token(user_guid: str, user_login: str) -> JwtToken:
+    async def encode_token(user_guid: str, user_login: str) -> JwtToken:
         now = datetime.now(timezone.utc)
         payload = {
             'iat': now,
             'exp': now + timedelta(seconds=settings.jwt_expires_seconds),
             'user_guid': str(user_guid),
-            'is_admin': SecureService.is_admin_user(user_login)
+            'is_admin': await SecureService.is_admin_user(user_login)
         }
         token = jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
         return JwtToken(access_token=token)
 
     @staticmethod
-    def decode_token(token: str) -> Optional[dict]:
+    async def decode_token(token: str) -> Optional[dict]:
         try:
             payload = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
         except JWTError:
@@ -46,15 +46,15 @@ class AuthService:
         }
 
     @staticmethod
-    def is_valid_token(token: str) -> bool:
+    async def is_valid_token(token: str) -> bool:
         try:
             jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
         except JWTError:
             return False
         return True
 
-    def login(self, login: str, password_text: str) -> Optional[JwtToken]:
-        user = (
+    async def login(self, login: str, password_text: str) -> Optional[JwtToken]:
+        user: Users = (
             self.session
             .query(Users)
             .filter(Users.login == login)
@@ -63,7 +63,7 @@ class AuthService:
 
         if not user:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-        if not SecureService.verify_password(password_text, user.password_hashed):
+        if not await SecureService.verify_password(password_text, user.password_hashed):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
-        return self.encode_token(user.guid, user.login)
+        return await self.encode_token(user.guid, user.login)

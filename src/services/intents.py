@@ -11,7 +11,7 @@ class IntentsService:
     def __init__(self, session: Session = Depends(get_session)):
         self.session = session
 
-    def get(self, id: int) -> Intents:
+    async def get(self, id: int) -> Intents:
         intent = (
             self.session
             .query(Intents)
@@ -24,7 +24,7 @@ class IntentsService:
 
         return intent
 
-    def all(self) -> List[Intents]:
+    async def all(self) -> List[Intents]:
         intents = (
             self.session
             .query(Intents)
@@ -36,7 +36,7 @@ class IntentsService:
 
         return intents
 
-    def add(self, request: IntentsRequestDB, user: dict) -> Intents:
+    async def add(self, request: IntentsRequestDB, user: dict) -> Intents:
         is_exist = (
             self.session
             .query(Intents)
@@ -46,15 +46,15 @@ class IntentsService:
         if is_exist:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT)
 
-        intent = create_by(Intents(), request, user)
+        intent = await create_by(Intents(), request, user)
 
         self.session.add(intent)
         self.session.commit()
         return intent
 
-    def update(self, id: int, request: IntentsRequestDB) -> Intents:
-        intent = self.get(id)
-        same_intent = self.get_by_bot_guid_and_name(request.bot_guid, request.name)
+    async def update(self, id: int, request: IntentsRequestDB) -> Intents:
+        intent = await self.get(id)
+        same_intent = await self.get_by_bot_guid_and_name(request.bot_guid, request.name)
 
         if same_intent and id != same_intent.id:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT)
@@ -65,12 +65,12 @@ class IntentsService:
         self.session.commit()
         return intent
 
-    def delete(self, id: int) -> None:
-        intent = self.get(id)
+    async def delete(self, id: int) -> None:
+        intent = await self.get(id)
         self.session.delete(intent)
         self.session.commit()
 
-    def all_intents_for_bot(self, bot_guid: str) -> List[Intents]:
+    async def all_intents_for_bot(self, bot_guid: str) -> List[Intents]:
         intents = (
             self.session
             .query(Intents)
@@ -81,7 +81,7 @@ class IntentsService:
 
         return intents
 
-    def get_by_bot_guid_and_name(self, bot_guid: str, name: str) -> Optional[Intents]:
+    async def get_by_bot_guid_and_name(self, bot_guid: str, name: str) -> Optional[Intents]:
         """
         Интенты имеют уникальные name для каждого бота, т.е. unique(name, bot_guid).
         """
@@ -94,7 +94,7 @@ class IntentsService:
 
         return intent
 
-    def get_by_guid_and_rank(self, bot_guid: str, intent_rank: int) -> Intents:
+    async def get_by_guid_and_rank(self, bot_guid: str, intent_rank: int) -> Intents:
         intent = (
             self.session
             .query(Intents)
@@ -107,7 +107,7 @@ class IntentsService:
 
         return intent
 
-    def get_by_guid_and_msg(self, bot_guid: str, message: str) -> Intents:
+    async def get_by_guid_and_msg(self, bot_guid: str, message: str) -> Intents:
         intent = (
             self.session
             .query(Intents)
@@ -120,13 +120,13 @@ class IntentsService:
 
         return intent
 
-    def update_by_bot_guid_and_name(self, bot_guid: str, name: str, request: IntentsRequestDB) -> Intents:
-        intent = self.get_by_bot_guid_and_name(bot_guid, name)
+    async def update_by_bot_guid_and_name(self, bot_guid: str, name: str, request: IntentsRequestDB) -> Intents:
+        intent = await self.get_by_bot_guid_and_name(bot_guid, name)
 
         if not intent:
             raise HTTPException(status_code=404, detail='Интент не найден')
 
-        same_intent = self.get_by_bot_guid_and_name(request.bot_guid, request.name)
+        same_intent = await self.get_by_bot_guid_and_name(request.bot_guid, request.name)
 
         if same_intent and intent.id != same_intent.id:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT)
@@ -137,8 +137,8 @@ class IntentsService:
         self.session.commit()
         return intent
 
-    def delete_by_bot_guid_and_name(self, bot_guid: str, name: str) -> None:
-        intent = self.get_by_bot_guid_and_name(bot_guid, name)
+    async def delete_by_bot_guid_and_name(self, bot_guid: str, name: str) -> None:
+        intent = await self.get_by_bot_guid_and_name(bot_guid, name)
 
         if not intent:
             raise HTTPException(status_code=404, detail='Интент не найден')

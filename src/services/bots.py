@@ -11,7 +11,7 @@ class BotsService:
     def __init__(self, session: Session = Depends(get_session)):
         self.session = session
 
-    def all(self) -> List[Bots]:
+    async def all(self) -> List[Bots]:
         bots = (
             self.session
             .query(Bots)
@@ -23,7 +23,7 @@ class BotsService:
 
         return bots
 
-    def get(self, guid: str) -> Bots:
+    async def get(self, guid: str) -> Bots:
         bot = (
             self.session
             .query(Bots)
@@ -36,7 +36,7 @@ class BotsService:
 
         return bot
 
-    def add(self, request: BotsRequest) -> Bots:
+    async def add(self, request: BotsRequest) -> Bots:
         is_exist = (
             self.session
             .query(Bots)
@@ -54,10 +54,10 @@ class BotsService:
         self.session.commit()
         return bot
 
-    def update(self, guid: str, request: BotsRequest) -> Bots:
-        bot = self.get(guid)
+    async def update(self, guid: str, request: BotsRequest) -> Bots:
+        bot = await self.get(guid)
 
-        with_same_guid = self.get(request.guid)
+        with_same_guid = await self.get(request.guid)
         if with_same_guid and guid != with_same_guid.guid:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT)
 
@@ -67,12 +67,12 @@ class BotsService:
         self.session.commit()
         return bot
 
-    def delete(self, guid: str) -> None:
-        bot = self.get(guid)
+    async def delete(self, guid: str) -> None:
+        bot = await self.get(guid)
         self.session.delete(bot)
         self.session.commit()
 
-    def allowed_bots_for_user(self, current_user: dict) -> List[Bots]:
+    async def allowed_bots_for_user(self, current_user: dict) -> List[Bots]:
         bots = (
             self.session
             .query(Bots.name, Bots.guid)
