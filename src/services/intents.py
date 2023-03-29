@@ -37,6 +37,9 @@ class IntentsService:
         return intents
 
     async def add(self, request: IntentsRequestDB, user: dict) -> Intents:
+        if request.rank != -1:
+            request.rank = await self.find_intent_rank(request.bot_guid)
+
         is_exist = (
             self.session
             .query(Intents)
@@ -145,3 +148,10 @@ class IntentsService:
 
         self.session.delete(intent)
         self.session.commit()
+
+    async def find_intent_rank(self, bot_guid: str) -> int:
+        ranks = tuple(n.rank for n in await self.all_intents_for_bot(bot_guid) if n.rank > -1)
+        for i, r in enumerate(ranks):
+            if r != i:
+                return i
+        return max(ranks) + 1
