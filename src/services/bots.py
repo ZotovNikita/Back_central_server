@@ -1,85 +1,39 @@
 from typing import List
 from fastapi import HTTPException, status, Depends
-from sqlalchemy.orm import Session
-from src.db.db import get_session
+from src.repositories.bots import BotsRepository
 from src.models.bots import Bots
-from src.models.relations import Relations
 from src.models.schemas.bots.bots_request import BotsRequest
 
 
 class BotsService:
-    def __init__(self, session: Session = Depends(get_session)):
-        self.session = session
+    def __init__(self, repository: BotsRepository = Depends()):
+        self.repo = repository
 
-    async def all(self) -> List[Bots]:
-        bots = (
-            self.session
-            .query(Bots)
-            .all()
-        )
+    async def get_all(self) -> List[Bots]:
+        return await self.repo.get_all()
 
-        if not bots:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    async def get_all_by_user_guid(self, user: dict) -> List[Bots]:
+        return await self.repo.get_all_by_user_guid(user.get('user_guid'))
 
-        return bots
-
-    async def get(self, guid: str) -> Bots:
-        bot = (
-            self.session
-            .query(Bots)
-            .filter(Bots.guid == guid)
-            .one_or_none()
-        )
-
-        if not bot:
+    async def get_by_guid(self, guid: str) -> Bots:
+        if not (bot := await self.repo.get_by_guid(guid)):
             raise HTTPException(status_code=404, detail='Бот не найден')
-
         return bot
 
     async def add(self, request: BotsRequest) -> Bots:
-        is_exist = (
-            self.session
-            .query(Bots)
-            .filter(Bots.guid == request.guid)
-            .count()
-        )
-        if is_exist:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT)
+        if await self.repo.get_by_guid(request.guid):
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                                detail='Полученные данные конфликтуют с существующим ботом')
+        return await self.repo.add(request)
 
-        bot = Bots()
-        for field, value in request:
-            setattr(bot, field, value)
+    async def update(self, bot: Bots, request: BotsRequest) -> Bots:
+        same_bot = await self.repo.get_by_guid(request.guid)
 
-        self.session.add(bot)
-        self.session.commit()
-        return bot
+        if same_bot and bot.guid != same_bot.guid:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                                detail='Полученные данные конфликтуют с существующим ботом')
 
-    async def update(self, guid: str, request: BotsRequest) -> Bots:
-        bot = await self.get(guid)
+        return await self.repo.update(bot, request)
 
-        with_same_guid = await self.get(request.guid)
-        if with_same_guid and guid != with_same_guid.guid:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT)
-
-        for field, value in request:
-            setattr(bot, field, value)
-
-        self.session.commit()
-        return bot
-
-    async def delete(self, guid: str) -> None:
-        bot = await self.get(guid)
-        self.session.delete(bot)
-        self.session.commit()
-
-    async def allowed_bots_for_user(self, current_user: dict) -> List[Bots]:
-        bots = (
-            self.session
-            .query(Bots.name, Bots.guid)
-            .join(Relations, Relations.bot_guid == Bots.guid)
-            .filter(Relations.user_guid == current_user.get('user_guid'))
-            .order_by(Bots.name.asc())
-            .all()
-        )
-
-        return bots
+    async def delete(self, bot: Bots) -> None:
+        await self.repo.delete(bot)

@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional, List
 from fastapi import Depends
 from sqlalchemy.orm import Session
 from src.db.db import get_session
