@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+import time
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from src.core.settings import settings
 from src.api.base_router import base_router
@@ -47,7 +48,7 @@ app = FastAPI(
       
       Moral of the story: Не забывайте, что Swagger - это всего лишь инструмент для документирования вашего API, а не сам API.
     """,
-    version='0.1.6',
+    version='0.1.7',
     openapi_tags=tags,
     docs_url=settings.docs_url,
     redoc_url=settings.redoc_url,
@@ -62,3 +63,12 @@ app.add_middleware(
 )
 
 app.include_router(base_router)
+
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    return response
