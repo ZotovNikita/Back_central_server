@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from src.db.db import get_session
 from src.models.bots import Bots
 from src.models.relations import Relations
-from src.models.schemas.bots.bots_request import BotsRequest
+from src.models.schemas.bots.request import BotsRequest
 
 
 class BotsRepository:

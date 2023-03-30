@@ -2,7 +2,7 @@ from typing import List
 from fastapi import HTTPException, status, Depends
 from src.repositories.bots import BotsRepository
 from src.models.bots import Bots
-from src.models.schemas.bots.bots_request import BotsRequest
+from src.models.schemas.bots.request import BotsRequest
 
 
 class BotsService:

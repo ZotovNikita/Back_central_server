@@ -11,26 +11,27 @@ from src.utils.functions import is_command
 
 
 class AdminChatService:
-    def __init__(self, session: Session = Depends(get_session), intents_service: IntentsService = Depends(), bots_service: BotsService = Depends()):
+    def __init__(self, session: Session = Depends(get_session), intents_service: IntentsService = Depends(), bots_service: BotsService = Depends(), ml_service: MLService = Depends()):
         self.session = session
         self.intents_service = intents_service
         self.bots_service = bots_service
-    
+        self.ml_service = ml_service
+
     async def log(self, request: AdminChatRequest, user_info: dict, intent: Intents = None) -> None:
         await self.bots_service.get_by_guid(request.bot_guid)
-        
+
         rec = AdminChatLog(
             message=request.message,
             user_guid=user_info.get('user_guid'),
             bot_guid=request.bot_guid,
             intent_rank=None if intent is None else intent.rank
         )
-        
+
         self.session.add(rec)
         self.session.commit()
-    
+
     async def predict_intent(self, request: AdminChatRequest) -> Intents:
-        intent_rank = await MLService.predict(request.bot_guid, request.message)
+        intent_rank = await self.ml_service.predict(request.bot_guid, request.message)
         return await self.intents_service.get_by_bot_guid_and_rank(request.bot_guid, intent_rank)
 
     async def answer(self, request: AdminChatRequest, current_user: dict) -> Intents:

@@ -11,10 +11,11 @@ from src.utils.functions import is_command
 
 
 class ClientChatService:
-    def __init__(self, session: Session = Depends(get_session), intents_service: IntentsService = Depends(), bots_service: BotsService = Depends()):
+    def __init__(self, session: Session = Depends(get_session), intents_service: IntentsService = Depends(), bots_service: BotsService = Depends(), ml_service: MLService = Depends()):
         self.session = session
         self.intents_service = intents_service
         self.bots_service = bots_service
+        self.ml_service = ml_service
 
     async def log(self, request: ClientChatRequest, intent: Intents = None) -> None:
         await self.bots_service.get_by_guid(request.bot_guid)
@@ -31,7 +32,7 @@ class ClientChatService:
         self.session.commit()
 
     async def predict_intent(self, request: ClientChatRequest) -> Intents:
-        intent_rank = await MLService.predict(request.bot_guid, request.message)
+        intent_rank = await self.ml_service.predict(request.bot_guid, request.message)
         return await self.intents_service.get_by_bot_guid_and_rank(request.bot_guid, intent_rank)
 
     async def answer(self, request: ClientChatRequest) -> Intents:

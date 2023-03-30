@@ -2,8 +2,8 @@ from typing import List
 from fastapi import APIRouter, status, Depends
 from pydantic import UUID4
 from src.services.bots import BotsService
-from src.models.schemas.bots.bots_request import BotsRequest
-from src.models.schemas.bots.bots_response import BotsResponse
+from src.models.schemas.bots.request import BotsRequest
+from src.models.schemas.bots.response import BotsResponse
 from src.dependencies import AUTHORIZED, ADMIN_ONLY
 
 
