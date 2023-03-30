@@ -1,6 +1,6 @@
 from typing import List
-from fastapi import APIRouter, status, Depends
 from pydantic import UUID4
+from fastapi import APIRouter, status, Depends
 from src.services.intents import IntentsService
 from src.models.schemas.intents.intents_request import IntentsRequestForm, IntentsRequestDB
 from src.models.schemas.intents.intents_response import IntentsResponse
