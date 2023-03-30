@@ -18,15 +18,6 @@ class RelationsRepository:
         )
         return relations
 
-    async def get_by_id(self, id: int) -> Optional[Relations]:
-        relation = (
-            self.session
-            .query(Relations)
-            .filter_by(id=id)
-            .first()
-        )
-        return relation
-
     async def get_by_user_guid_and_bot_guid(self, user_guid: str, bot_guid: str) -> Optional[Relations]:
         relation = (
             self.session

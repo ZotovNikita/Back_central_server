@@ -1,5 +1,6 @@
 from pydantic import BaseModel, UUID4
-from typing import Optional
+from typing import Optional, List
+from src.models.schemas.examples.response import ExamplesResponse
 
 
 class IntentsResponse(BaseModel):
@@ -8,7 +9,8 @@ class IntentsResponse(BaseModel):
     answer: str
     rank: Optional[int]
     bot_guid: UUID4
-    created_by: UUID4
-    
+    created_by: Optional[UUID4]
+    examples: List[ExamplesResponse]
+
     class Config:
         orm_mode = True

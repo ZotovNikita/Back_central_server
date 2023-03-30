@@ -16,11 +16,6 @@ class RelationsService:
     async def get_all(self) -> List[Relations]:
         return await self.repo.get_all()
 
-    async def get_by_id(self, id: int) -> Relations:
-        if not (relation := await self.repo.get_by_id(id)):
-            raise HTTPException(status_code=404, detail='Связь не найдена')
-        return relation
-
     async def get_by_user_guid_and_bot_guid(self, user_guid: str, bot_guid: str) -> Relations:
         if not (relation := await self.repo.get_by_user_guid_and_bot_guid(user_guid, bot_guid)):
             raise HTTPException(status_code=404, detail='Связь не найдена')

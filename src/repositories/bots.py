@@ -2,14 +2,15 @@ from typing import Optional, List
 from fastapi import Depends
 from sqlalchemy.orm import Session
 from src.db.db import get_session
+from src.repositories.users import UsersRepository
 from src.models.bots import Bots
-from src.models.relations import Relations
 from src.models.schemas.bots.request import BotsRequest
 
 
 class BotsRepository:
-    def __init__(self, session: Session = Depends(get_session)):
+    def __init__(self, session: Session = Depends(get_session), users_repository: UsersRepository = Depends()):
         self.session = session
+        self.users_repo = users_repository
 
     async def get_all(self) -> List[Bots]:
         bots = (
@@ -28,15 +29,16 @@ class BotsRepository:
         WHERE Relations.user_guid = user_guid
         ORDER BY Bots.name ASC
         """
-        bots = (
-            self.session
-            .query(Bots)
-            .join(Relations, Relations.bot_guid == Bots.guid)
-            .filter(Relations.user_guid == user_guid)
-            .order_by(Bots.name.asc())
-            .all()
-        )
-        return bots
+        # bots = (
+        #     self.session
+        #     .query(Bots)
+        #     .join(Relations, Relations.bot_guid == Bots.guid)
+        #     .filter(Relations.user_guid == user_guid)
+        #     .order_by(Bots.name.asc())
+        #     .all()
+        # )
+        user = await self.users_repo.get_by_guid(user_guid)
+        return user.bots
 
     async def get_by_guid(self, guid: str) -> Optional[Bots]:
         bot = (
@@ -49,7 +51,7 @@ class BotsRepository:
 
     async def add(self, request: BotsRequest) -> Bots:
         bot = Bots(**dict(request))
-        self.session.add(Bots(**dict(request)))
+        self.session.add(bot)
         self.session.commit()
         return bot
 

@@ -68,4 +68,4 @@ class IntentsService:
         for i, r in enumerate(ranks):
             if r != i:
                 return i
-        return max(ranks) + 1
+        return max(ranks, default=-1) + 1
