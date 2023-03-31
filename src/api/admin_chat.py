@@ -1,3 +1,5 @@
+from typing import List
+from pydantic import UUID4
 from fastapi import APIRouter, Depends
 from src.services.admin_chat import AdminChatService
 from src.models.schemas.admin_chat.admin_chat_request import AdminChatRequest
@@ -15,3 +17,8 @@ router = APIRouter(
 @router.post('/answer', response_model=IntentsResponse, name='Получить ответ от бота')
 async def answer(request: AdminChatRequest, service: AdminChatService = Depends(), current_user: dict = Depends(AUTHORIZED)):
     return await service.answer(request, current_user)
+
+
+@router.get('/history', response_model=List[IntentsResponse], name='Получить историю чата')
+async def get_chat_history(bot_guid: UUID4, service: AdminChatService = Depends(), current_user: dict = Depends(AUTHORIZED)):
+    return await service.get_chat_history(bot_guid, current_user)

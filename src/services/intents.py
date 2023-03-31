@@ -3,11 +3,14 @@ from fastapi import HTTPException, status, Depends
 from src.repositories.intents import IntentsRepository
 from src.models.intents import Intents
 from src.models.schemas.intents.intents_request import IntentsRequestDB
+from src.services.ml import MLService
+from src.utils.functions import is_command
 
 
 class IntentsService:
-    def __init__(self, repository: IntentsRepository = Depends()):
+    def __init__(self, repository: IntentsRepository = Depends(), ml_service: MLService = Depends()):
         self.repo = repository
+        self.ml_service = ml_service
 
     async def get_all(self) -> List[Intents]:
         return await self.repo.get_all()
@@ -62,6 +65,17 @@ class IntentsService:
 
     async def delete(self, intent: Intents) -> None:
         await self.repo.delete(intent)
+
+    async def predict_intent(self, bot_guid: str, message: str) -> Intents:
+        intent_rank = await self.ml_service.predict(bot_guid, message)
+        return await self.get_by_bot_guid_and_rank(bot_guid, intent_rank)
+
+    async def find_intent_by_msg(self, bot_guid: str, message: str) -> Intents:
+        return (
+            await self.get_by_bot_guid_and_msg(bot_guid, message)
+            if await is_command(message) else
+            await self.predict_intent(bot_guid, message)
+        )
 
     async def find_intent_rank(self, bot_guid: str) -> int:
         ranks = tuple(n.rank for n in await self.get_all_by_bot_guid(bot_guid) if n.rank > -1)

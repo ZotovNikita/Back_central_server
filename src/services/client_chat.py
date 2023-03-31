@@ -1,48 +1,31 @@
 from fastapi import Depends
-from sqlalchemy.orm import Session
-from src.db.db import get_session
-from src.models.intents import Intents
+from src.repositories.client_chat import ClientChatRepository
 from src.models.client_chat_log import ClientChatLog
+from src.models.intents import Intents
 from src.models.schemas.client_chat.client_chat_request import ClientChatRequest
-from src.services.ml import MLService
 from src.services.intents import IntentsService
 from src.services.bots import BotsService
-from src.utils.functions import is_command
 
 
 class ClientChatService:
-    def __init__(self, session: Session = Depends(get_session), intents_service: IntentsService = Depends(), bots_service: BotsService = Depends(), ml_service: MLService = Depends()):
-        self.session = session
+    def __init__(self, repository: ClientChatRepository = Depends(), intents_service: IntentsService = Depends(), bots_service: BotsService = Depends()):
+        self.repo = repository
         self.intents_service = intents_service
         self.bots_service = bots_service
-        self.ml_service = ml_service
 
     async def log(self, request: ClientChatRequest, intent: Intents = None) -> None:
         await self.bots_service.get_by_guid(request.bot_guid)
 
-        rec = ClientChatLog(
-            message=request.message,
+        record = ClientChatLog(
+            **dict(request),
             in_doubt=False,
-            client_id=request.client_id,
-            bot_guid=request.bot_guid,
             intent_rank=None if intent is None else intent.rank
         )
 
-        self.session.add(rec)
-        self.session.commit()
-
-    async def predict_intent(self, request: ClientChatRequest) -> Intents:
-        intent_rank = await self.ml_service.predict(request.bot_guid, request.message)
-        return await self.intents_service.get_by_bot_guid_and_rank(request.bot_guid, intent_rank)
+        await self.repo.add(record)
 
     async def answer(self, request: ClientChatRequest) -> Intents:
         await self.log(request)
-
-        answer: Intents
-        if await is_command(request.message):
-            answer = await self.intents_service.get_by_bot_guid_and_msg(request.bot_guid, request.message)
-        else:
-            answer = await self.predict_intent(request)
-
+        answer = self.intents_service.find_intent_by_msg(request.bot_guid, request.message)
         await self.log(request, answer)
         return answer
