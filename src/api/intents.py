@@ -24,18 +24,13 @@ async def get_all(service: IntentsService = Depends()):
     return await service.get_all()
 
 
-@router.post('/w', response_model=IntentsResponse, status_code=status.HTTP_201_CREATED, name='(!) Добавить интент', dependencies=[Depends(ADMIN_ONLY)])
-async def add(request: IntentsRequestDB, service: IntentsService = Depends(), user: dict = Depends(AUTHORIZED)):
-    return await service.add(request, user)
-
-
-@router.post('/w/{id}', response_model=IntentsResponse, name='(!) Изменить интент', dependencies=[Depends(ADMIN_ONLY)])
-async def update_by_id(id: int, request: IntentsRequestDB, service: IntentsService = Depends()):
+@router.post('/w/{id}', response_model=IntentsResponse, name='(!) Изменить интент по id', dependencies=[Depends(ADMIN_ONLY)])
+async def update_by_id(id: int, request: IntentsRequestForm, service: IntentsService = Depends()):
     intent = await service.get_by_id(id)
     return await service.update(intent, request)
 
 
-@router.delete('/w/{id}', status_code=status.HTTP_204_NO_CONTENT, name='(!) Удалить интент', dependencies=[Depends(ADMIN_ONLY)])
+@router.delete('/w/{id}', status_code=status.HTTP_204_NO_CONTENT, name='(!) Удалить интент по id', dependencies=[Depends(ADMIN_ONLY)])
 async def delete_by_id(id: int, service: IntentsService = Depends()):
     intent = await service.get_by_id(id)
     return await service.delete(intent)
@@ -47,13 +42,13 @@ async def get_all_by_bot_guid(bot_guid: UUID4, service: IntentsService = Depends
 
 
 @router.post('/form', response_model=IntentsResponse, status_code=status.HTTP_201_CREATED, name='Добавить интент по форме')
-async def add(request: IntentsRequestForm, service: IntentsService = Depends(), user: dict = Depends(AUTHORIZED)):
+async def add_by_form(request: IntentsRequestForm, service: IntentsService = Depends(), user: dict = Depends(AUTHORIZED)):
     # ! по request.examples обучить модель ?
     return await service.add(request, user)
 
 
 @router.post('/form/{bot_guid}/{name}', response_model=IntentsResponse, name='Изменить интент по форме')
-async def update_by_bot_guid_and_name(bot_guid: UUID4, name: str, request: IntentsRequestForm, service: IntentsService = Depends()):
+async def update_by_form(bot_guid: UUID4, name: str, request: IntentsRequestForm, service: IntentsService = Depends()):
     # ! по request.examples переобучить модель ?
     intent = await service.get_by_bot_guid_and_name(bot_guid, name)
     return await service.update(intent, request)

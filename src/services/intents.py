@@ -2,15 +2,18 @@ from typing import List
 from fastapi import HTTPException, status, Depends
 from src.repositories.intents import IntentsRepository
 from src.models.intents import Intents
-from src.models.schemas.intents.intents_request import IntentsRequestDB
+from src.models.schemas.intents.intents_request import IntentsRequestForm, IntentsRequestDB
+from src.models.schemas.examples.request import ExamplesRequest
+from src.services.examples import ExamplesService
 from src.services.ml import MLService
 from src.utils.functions import is_command
 
 
 class IntentsService:
-    def __init__(self, repository: IntentsRepository = Depends(), ml_service: MLService = Depends()):
+    def __init__(self, repository: IntentsRepository = Depends(), ml_service: MLService = Depends(), examples_service: ExamplesService = Depends()):
         self.repo = repository
         self.ml_service = ml_service
+        self.examples_service = examples_service
 
     async def get_all(self) -> List[Intents]:
         return await self.repo.get_all()
@@ -44,7 +47,7 @@ class IntentsService:
             raise HTTPException(status_code=404, detail='Интент не найден')
         return intent
 
-    async def add(self, request: IntentsRequestDB, user: dict) -> Intents:
+    async def add(self, request: IntentsRequestForm, user: dict) -> Intents:
         if request.rank != -1:
             request.rank = await self.find_intent_rank(request.bot_guid)
 
@@ -52,8 +55,14 @@ class IntentsService:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                                 detail='Полученные данные конфликтуют с существующим интентом')
 
-        return await self.repo.add(request, user.get('user_guid'))
+        intent = await self.repo.add(request, user.get('user_guid'))
 
+        for example in request.examples:
+            await self.examples_service.add(ExamplesRequest(intent_id=intent.id, text=example))
+
+        return intent
+
+    # TODO: add/update examples
     async def update(self, intent: Intents, request: IntentsRequestDB) -> Intents:
         same_intent = await self.repo.get_by_bot_guid_and_name(request.bot_guid, request.name)
 
