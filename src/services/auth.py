@@ -3,10 +3,8 @@ from datetime import datetime, timezone, timedelta
 from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from sqlalchemy.orm import Session
-from src.db.db import get_session
 from src.core.settings import settings
-from src.models.users import Users
+from src.repositories.users import UsersRepository
 from src.models.schemas.utils.jwt_token import JwtToken
 from src.services.secure import SecureService
 
@@ -19,8 +17,8 @@ async def get_current_user(token: str = Depends(oauth2_schema)) -> dict:
 
 
 class AuthService:
-    def __init__(self, session: Session = Depends(get_session)):
-        self.session = session
+    def __init__(self, users_repository: UsersRepository = Depends()):
+        self.users_repo = users_repository
 
     @staticmethod
     async def encode_token(user_guid: str, user_login: str) -> JwtToken:
@@ -39,7 +37,8 @@ class AuthService:
         try:
             payload = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
         except JWTError:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Некорректный токен')
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                detail='Некорректный токен')
         return {
             'user_guid': payload.get('user_guid'),
             'is_admin': payload.get('is_admin')
@@ -54,14 +53,7 @@ class AuthService:
         return True
 
     async def login(self, login: str, password_text: str) -> Optional[JwtToken]:
-        user: Users = (
-            self.session
-            .query(Users)
-            .filter(Users.login == login)
-            .first()
-        )
-
-        if not user:
+        if not (user := await self.users_repo.get_by_login(login)):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
         if not await SecureService.verify_password(password_text, user.password_hashed):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
