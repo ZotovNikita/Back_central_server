@@ -48,7 +48,11 @@ class IntentsService:
         return intent
 
     async def add(self, request: IntentsRequestForm, user: dict) -> Intents:
-        if request.rank != -1:
+        is_command = request.rank == -1
+
+        if is_command:
+            request.name = request.examples[0]
+        else:
             request.rank = await self.find_intent_rank(request.bot_guid)
 
         if await self.repo.get_by_bot_guid_and_name(request.bot_guid, request.name):
@@ -57,8 +61,9 @@ class IntentsService:
 
         intent = await self.repo.add(request, user.get('user_guid'))
 
-        for example in request.examples:
-            await self.examples_service.add(ExamplesRequest(intent_id=intent.id, text=example))
+        if not is_command:
+            for example in request.examples:
+                await self.examples_service.add(ExamplesRequest(intent_id=intent.id, text=example))
 
         return intent
 
