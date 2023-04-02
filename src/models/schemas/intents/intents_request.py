@@ -7,7 +7,7 @@ class IntentsRequestForm(BaseModel):
     answer: str
     rank: Optional[int]
     bot_guid: UUID4
-    examples: List[str]
+    examples: Optional[List[str]]
 
 
 class IntentsRequestDB(BaseModel):

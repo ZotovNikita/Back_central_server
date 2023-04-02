@@ -3,7 +3,7 @@ from fastapi import Depends
 from src.repositories.admin_chat import AdminChatRepository
 from src.models.admin_chat_log import AdminChatLog
 from src.models.intents import Intents
-from src.models.schemas.admin_chat.admin_chat_request import AdminChatRequest
+from src.models.schemas.admin_chat.request import AdminChatRequest
 from src.services.intents import IntentsService
 from src.services.bots import BotsService
 

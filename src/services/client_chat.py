@@ -26,6 +26,6 @@ class ClientChatService:
 
     async def answer(self, request: ClientChatRequest) -> Intents:
         await self.log(request)
-        answer = self.intents_service.find_intent_by_msg(request.bot_guid, request.message)
+        answer = await self.intents_service.find_intent_by_msg(request.bot_guid, request.message)
         await self.log(request, answer)
         return answer
