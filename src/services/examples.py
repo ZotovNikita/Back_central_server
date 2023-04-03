@@ -12,5 +12,11 @@ class ExamplesService:
     async def get_all(self) -> List[Examples]:
         return await self.repo.get_all()
 
+    async def get_all_by_intent_id(self, intent_id: int) -> List[Examples]:
+        return await self.repo.get_all_by_intent_id(intent_id)
+
     async def add(self, request: ExamplesRequest) -> Examples:
         return await self.repo.add(Examples(**dict(request)))
+
+    async def delete(self, record: Examples) -> None:
+        return await self.repo.delete(record)

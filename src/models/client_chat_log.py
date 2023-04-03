@@ -11,5 +11,6 @@ class ClientChatLog(Base):
     in_doubt = Column(Boolean, nullable=True)
     client_id = Column(String, nullable=False)
     bot_guid = Column(GUID, ForeignKey('bots.guid', ondelete='CASCADE'), nullable=False)
-    intent_rank = Column(Integer, nullable=True)
+    intent_rank = Column(Integer, nullable=False)
+    answer = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)

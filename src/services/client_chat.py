@@ -13,19 +13,19 @@ class ClientChatService:
         self.intents_service = intents_service
         self.bots_service = bots_service
 
-    async def log(self, request: ClientChatRequest, intent: Intents = None) -> None:
+    async def log(self, request: ClientChatRequest, intent: Intents) -> None:
         await self.bots_service.get_by_guid(request.bot_guid)
 
         record = ClientChatLog(
             **dict(request),
             in_doubt=False,
-            intent_rank=None if intent is None else intent.rank
+            intent_rank=intent.rank,
+            answer=intent.answer,
         )
 
         await self.repo.add(record)
 
     async def answer(self, request: ClientChatRequest) -> Intents:
-        await self.log(request)
         answer = await self.intents_service.find_intent_by_msg(request.bot_guid, request.message)
         await self.log(request, answer)
         return answer

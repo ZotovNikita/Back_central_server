@@ -28,6 +28,16 @@ class IntentsRepository:
         )
         return intents
 
+    async def get_with_max_rank_by_bot_guid(self, bot_guid: str) -> Optional[Intents]:
+        intents = (
+            self.session
+            .query(Intents)
+            .filter_by(bot_guid=bot_guid)
+            .order_by(Intents.rank.desc())
+            .first()
+        )
+        return intents
+
     async def get_by_id(self, id: int) -> Optional[Intents]:
         intent = (
             self.session

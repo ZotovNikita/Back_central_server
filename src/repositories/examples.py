@@ -17,7 +17,20 @@ class ExamplesRepository:
         )
         return examples
 
+    async def get_all_by_intent_id(self, intent_id: int) -> List[Examples]:
+        examples = (
+            self.session
+            .query(Examples)
+            .filter_by(intent_id=intent_id)
+            .all()
+        )
+        return examples
+
     async def add(self, record: Examples) -> Examples:
         self.session.add(record)
         self.session.commit()
         return record
+
+    async def delete(self, record: Examples) -> None:
+        self.session.delete(record)
+        self.session.commit()

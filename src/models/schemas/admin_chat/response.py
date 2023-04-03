@@ -1,5 +1,4 @@
 from pydantic import BaseModel, UUID4
-from typing import Optional
 from datetime import datetime
 
 
@@ -8,7 +7,8 @@ class AdminChatResponse(BaseModel):
     message: str
     user_guid: UUID4
     bot_guid: UUID4
-    intent_rank: Optional[int]
+    intent_rank: int
+    answer: str
     created_at: datetime
 
     class Config:

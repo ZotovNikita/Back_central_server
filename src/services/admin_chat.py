@@ -14,19 +14,19 @@ class AdminChatService:
         self.intents_service = intents_service
         self.bots_service = bots_service
 
-    async def log(self, request: AdminChatRequest, user_info: dict, intent: Intents = None) -> None:
+    async def log(self, request: AdminChatRequest, user_info: dict, intent: Intents) -> None:
         await self.bots_service.get_by_guid(request.bot_guid)
 
         record = AdminChatLog(
             **dict(request),
             user_guid=user_info.get('user_guid'),
-            intent_rank=None if intent is None else intent.rank
+            intent_rank=intent.rank,
+            answer=intent.answer,
         )
 
         await self.repo.add(record)
 
     async def answer(self, request: AdminChatRequest, current_user: dict) -> Intents:
-        await self.log(request, current_user)
         answer = await self.intents_service.find_intent_by_msg(request.bot_guid, request.message)
         await self.log(request, current_user, answer)
         return answer

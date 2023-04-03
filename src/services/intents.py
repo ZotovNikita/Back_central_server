@@ -65,18 +65,26 @@ class IntentsService:
 
         return intent
 
-    # TODO: add/update examples
-    async def update(self, intent: Intents, request: IntentsRequestDB) -> Intents:
+    async def update(self, intent: Intents, request: IntentsRequestForm) -> Intents:
         same_intent = await self.repo.get_by_bot_guid_and_name(request.bot_guid, request.name)
 
         if same_intent and intent.id != same_intent.id:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                                 detail='Полученные данные конфликтуют с существующим интентом')
 
-        return await self.repo.update(intent, request)
+        for example in await self.examples_service.get_all_by_intent_id(intent.id):
+            await self.examples_service.delete(example)
+
+        if request.rank != -1:
+            for example_text in request.examples:
+                await self.examples_service.add(ExamplesRequest(intent_id=intent.id, text=example_text))
+
+        return await self.repo.update(intent, IntentsRequestDB(**dict(request)))
 
     async def delete(self, intent: Intents) -> None:
         await self.repo.delete(intent)
+        if intent.rank != -1:
+            await self.renumber_last_intent(intent.bot_guid, intent.rank)
 
     async def predict_intent(self, bot_guid: str, message: str) -> Intents:
         intent_rank = await self.ml_service.predict(bot_guid, message)
@@ -95,3 +103,14 @@ class IntentsService:
             if r != i:
                 return i
         return max(ranks, default=-1) + 1
+
+    async def renumber_last_intent(self, bot_guid: str, rank: int) -> None:
+        intent = await self.repo.get_with_max_rank_by_bot_guid(bot_guid)
+
+        if intent and intent.rank > rank:
+            await self.repo.update(intent, IntentsRequestDB(
+                name=intent.name,
+                answer=intent.answer,
+                rank=rank,
+                bot_guid=intent.bot_guid,
+            ))
