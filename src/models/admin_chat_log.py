@@ -8,8 +8,8 @@ class AdminChatLog(Base):
     __tablename__ = 'admin_chat_log'
     id = Column(Integer, primary_key=True)
     message = Column(String, nullable=False)
-    user_guid = Column(GUID, ForeignKey('users.guid', ondelete='CASCADE'), nullable=False)
-    bot_guid = Column(GUID, ForeignKey('bots.guid', ondelete='CASCADE'), nullable=False)
+    user_guid = Column(GUID, ForeignKey('users.guid', name='fk_admin_chat_log__user_guid', ondelete='CASCADE'), nullable=False)
+    bot_guid = Column(GUID, ForeignKey('bots.guid', name='fk_admin_chat_log__bot_guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
     intent_rank = Column(Integer, nullable=False)
     answer = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)

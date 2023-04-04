@@ -9,5 +9,5 @@ class Users(Base):
     guid = Column(GUID, primary_key=True, default=GUID_DEFAULT_SQLITE)
     login = Column(String, nullable=False, unique=True)
     password_hashed = Column(String, nullable=False)
-    relations = relationship('Relations', back_populates='user')
+    relations = relationship('Relations', back_populates='user', cascade='all, delete-orphan')
     bots = relationship('Bots', secondary='relations', viewonly=True, lazy='subquery')

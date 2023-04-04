@@ -11,6 +11,6 @@ class Intents(Base):
     name = Column(String, nullable=False)
     answer = Column(String, nullable=False)
     rank = Column(Integer, nullable=True)
-    bot_guid = Column(GUID, ForeignKey('bots.guid'), nullable=False)
-    created_by = Column(GUID, ForeignKey('users.guid', ondelete='SET NULL'), nullable=True)
+    bot_guid = Column(GUID, ForeignKey('bots.guid', name='fk_intents__bot_guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
+    created_by = Column(GUID, ForeignKey('users.guid', name='fk_intents__created_by', ondelete='SET NULL'), nullable=True)
     examples = relationship('Examples', backref='intent', cascade='all, delete-orphan')

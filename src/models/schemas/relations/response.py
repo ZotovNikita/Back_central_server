@@ -4,8 +4,6 @@ from src.models.schemas.bots.response import BotsResponse
 
 
 class RelationsResponse(BaseModel):
-    user_guid: UUID4
-    bot_guid: UUID4
     user: UsersResponse
     bot: BotsResponse
 
