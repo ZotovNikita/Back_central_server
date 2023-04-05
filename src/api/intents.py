@@ -2,7 +2,7 @@ from typing import List
 from pydantic import UUID4
 from fastapi import APIRouter, status, Depends
 from src.services.intents import IntentsService
-from src.models.schemas.intents.intents_request import IntentsRequestForm, IntentsRequestDB
+from src.models.schemas.intents.intents_request import IntentsRequestForm
 from src.models.schemas.intents.intents_response import IntentsResponse
 from src.dependencies import AUTHORIZED, ADMIN_ONLY
 
@@ -43,19 +43,16 @@ async def get_all_by_bot_guid(bot_guid: UUID4, service: IntentsService = Depends
 
 @router.post('/form', response_model=IntentsResponse, status_code=status.HTTP_201_CREATED, name='Добавить интент по форме')
 async def add_by_form(request: IntentsRequestForm, service: IntentsService = Depends(), user: dict = Depends(AUTHORIZED)):
-    # ! по request.examples обучить модель ?
     return await service.add(request, user)
 
 
 @router.post('/form/{bot_guid}/{name:path}', response_model=IntentsResponse, name='Изменить интент по форме')
 async def update_by_form(bot_guid: UUID4, name: str, request: IntentsRequestForm, service: IntentsService = Depends()):
-    # ! по request.examples переобучить модель ?
     intent = await service.get_by_bot_guid_and_name(bot_guid, name)
     return await service.update(intent, request)
 
 
 @router.delete('/form/{bot_guid}/{name:path}', status_code=status.HTTP_204_NO_CONTENT, name='Удалить интент по форме')
 async def delete_by_bot_guid_and_name(bot_guid: UUID4, name: str, service: IntentsService = Depends()):
-    # ! что-то происходит в модели ?
     intent = await service.get_by_bot_guid_and_name(bot_guid, name)
     return await service.delete(intent)

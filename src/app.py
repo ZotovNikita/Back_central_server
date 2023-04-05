@@ -34,6 +34,10 @@ tags = [
       "name": "relations",
       "description": "Управление связями"
     },
+    {
+      "name": "ml",
+      "description": "Взаимодействие с моделями"
+    },
 ]
 
 app = FastAPI(
@@ -48,7 +52,7 @@ app = FastAPI(
       
       Moral of the story: Не забывайте, что Swagger - это всего лишь инструмент для документирования вашего API, а не сам API.
     """,
-    version='0.2.1',
+    version='0.2.2',
     openapi_tags=tags,
     docs_url=settings.docs_url,
     redoc_url=settings.redoc_url,
