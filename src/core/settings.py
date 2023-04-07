@@ -1,4 +1,5 @@
 from pydantic import BaseSettings
+import spacy
 
 
 class Settings(BaseSettings):
@@ -20,9 +21,14 @@ class Settings(BaseSettings):
     admin_login: str
     admin_password: str
 
+    models_dir: str = 'storage/models'
+    spacy_model_name: str = 'ru_core_news_lg'
+
     class Config:
-        env_file = '../.env'
+        env_file = '.env'
         env_file_encoding = 'utf-8'
 
 
 settings = Settings()
+
+spacy_model = spacy.load(settings.spacy_model_name)
