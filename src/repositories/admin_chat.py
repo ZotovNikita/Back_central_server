@@ -1,4 +1,4 @@
-from typing import List
+from typing import Optional, List
 from fastapi import Depends
 from sqlalchemy.orm import Session
 from src.db.db import get_session
@@ -16,6 +16,16 @@ class AdminChatRepository:
             .filter_by(bot_guid=bot_guid, user_guid=user_guid)
             .order_by(AdminChatLog.created_at.asc())
             .all()
+        )
+        return answers
+
+    async def get_last_by_bot_guid_and_user_guid(self, bot_guid: str, user_guid: str) -> Optional[AdminChatLog]:
+        answers = (
+            self.session
+            .query(AdminChatLog)
+            .filter_by(bot_guid=bot_guid, user_guid=user_guid)
+            .order_by(AdminChatLog.created_at.desc())
+            .first()
         )
         return answers
 

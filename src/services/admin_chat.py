@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import Depends
+from fastapi import HTTPException, Depends
 from src.repositories.admin_chat import AdminChatRepository
 from src.models.admin_chat_log import AdminChatLog
 from src.models.intents import Intents
@@ -33,3 +33,8 @@ class AdminChatService:
 
     async def get_chat_history(self, bot_guid: str, user: dict) -> List[AdminChatLog]:
         return await self.repo.get_all_by_bot_guid_and_user_guid(bot_guid, user.get('user_guid'))
+    
+    async def get_last_user_message(self, bot_guid: str, user: dict) -> AdminChatLog:
+        if not (answer := await self.repo.get_last_by_bot_guid_and_user_guid(bot_guid, user.get('user_guid'))):
+            raise HTTPException(status_code=404, detail='Пользователь не общался с данным ботом')
+        return answer

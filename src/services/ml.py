@@ -10,5 +10,6 @@ class MLService:
         print(X)
         print(y)
 
-    async def transfer(self):
-        ...
+    async def step(self, bot_guid: str, x: str, y: int) -> None:
+        print(bot_guid)
+        print(x, y)
