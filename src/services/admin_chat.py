@@ -38,3 +38,6 @@ class AdminChatService:
         if not (answer := await self.repo.get_last_by_bot_guid_and_user_guid(bot_guid, user.get('user_guid'))):
             raise HTTPException(status_code=404, detail='Пользователь не общался с данным ботом')
         return answer
+
+    async def delete_all_by_bot_guid_and_user(self, bot_guid: str, user: dict) -> None:
+        await self.repo.delete_all_by_bot_guid_and_user_guid(bot_guid, user.get('user_guid'))

@@ -32,3 +32,9 @@ class AdminChatRepository:
     async def add(self, record: AdminChatLog) -> None:
         self.session.add(record)
         self.session.commit()
+
+    async def delete_all_by_bot_guid_and_user_guid(self, bot_guid: str, user_guid: str) -> None:
+        self.session.query(AdminChatLog).filter_by(
+            bot_guid=bot_guid, user_guid=user_guid
+        ).delete()
+        self.session.commit()

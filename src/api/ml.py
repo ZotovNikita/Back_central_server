@@ -14,7 +14,8 @@ router = APIRouter(
 
 
 @router.post('/train/{bot_guid}', name='Обучить модель по guid бота')
-async def train_bot_model(bot_guid: UUID4, service: MLService = Depends(), intents_service: IntentsService = Depends()):
+async def train_bot_model(bot_guid: UUID4, service: MLService = Depends(), intents_service: IntentsService = Depends(), chat_service: AdminChatService = Depends(), user: dict = Depends(AUTHORIZED)):
+    await chat_service.delete_all_by_bot_guid_and_user(bot_guid, user)
     intents = await intents_service.get_all_by_bot_guid(bot_guid)
     examples = []
     ranks = []
