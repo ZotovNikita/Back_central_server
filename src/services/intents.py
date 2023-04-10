@@ -63,8 +63,6 @@ class IntentsService:
             for example in request.examples:
                 await self.examples_service.add(ExamplesRequest(intent_id=intent.id, text=example))
 
-        intents = await self.repo.get_all_by_bot_guid(request.bot_guid)
-        await self.ml_service.create_default_model(request.bot_guid, len(intents))
         return intent
 
     async def update(self, intent: Intents, request: IntentsRequestForm) -> Intents:

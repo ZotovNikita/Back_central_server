@@ -23,9 +23,10 @@ class Settings(BaseSettings):
 
     models_dir: str = 'storage/models'
     spacy_model_name: str = 'ru_core_news_lg'
+    epochs: int = 15
 
     class Config:
-        env_file = '.env'
+        env_file = '../.env'
         env_file_encoding = 'utf-8'
 
 
