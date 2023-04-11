@@ -67,6 +67,13 @@ class MLService:
         model.fit(np.array([x]), np.array(y).reshape(1, 1), epochs=epochs, verbose=False)
         model.save(f'{settings.models_dir}/{bot_guid}.h5')
 
+    async def delete_model(self, bot_guid: str) -> None:
+        """
+        Удаление файла с моделью
+        """
+        if os.path.exists(f'{settings.models_dir}/{bot_guid}.h5'):
+            os.remove(f'{settings.models_dir}/{bot_guid}.h5')
+
     async def create_default_model(self, bot_guid: str, intents_count: int) -> None:
         """
         ? Создание дефолтной модели по количеству интентов

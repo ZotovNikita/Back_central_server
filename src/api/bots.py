@@ -2,6 +2,7 @@ from typing import List
 from fastapi import APIRouter, status, Depends
 from pydantic import UUID4
 from src.services.bots import BotsService
+from src.services.ml import MLService
 from src.models.schemas.bots.request import BotsRequest
 from src.models.schemas.bots.response import BotsResponse
 from src.dependencies import AUTHORIZED, ADMIN_ONLY
@@ -36,8 +37,9 @@ async def update_by_guid(guid: UUID4, request: BotsRequest, service: BotsService
 
 
 @router.delete('/{guid}', status_code=status.HTTP_204_NO_CONTENT, name='Удалить бота', dependencies=[Depends(ADMIN_ONLY)])
-async def delete_by_guid(guid: UUID4, service: BotsService = Depends()):
+async def delete_by_guid(guid: UUID4, service: BotsService = Depends(), ml_service: MLService = Depends()):
     bot = await service.get_by_guid(guid)
+    await ml_service.delete_model(guid)
     return await service.delete(bot)
 
 
