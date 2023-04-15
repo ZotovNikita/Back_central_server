@@ -1,4 +1,5 @@
-from fastapi import Depends
+from fastapi import HTTPException, Depends
+from src.core.settings import settings
 from src.repositories.client_chat import ClientChatRepository
 from src.models.client_chat_log import ClientChatLog
 from src.models.intents import Intents
@@ -26,6 +27,11 @@ class ClientChatService:
         await self.repo.add(record)
 
     async def answer(self, request: ClientChatRequest) -> Intents:
+        if request.message == settings.in_doubt_command:
+            if (last_message := await self.repo.get_last_by_bot_guid_and_client_id(request.bot_guid, request.client_id)):
+                await self.repo.update_doubt_status(last_message, True)
+            raise HTTPException(status_code=200, detail='Последнее сообщение клиента успешно отмечено как сомнительное')
+
         answer = await self.intents_service.find_intent_by_msg(request.bot_guid, request.message)
         await self.log(request, answer)
         return answer

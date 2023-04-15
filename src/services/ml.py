@@ -45,26 +45,27 @@ class MLService:
         else:
             model = await self.__build_model(1)
         x = (await self.__prepare_data([message]))[0]
-        pred = model.predict(np.array([x]))
+        pred = model.predict(np.array([x]), verbose=settings.verbose)
         return np.argmax(pred).item()
 
-    async def train(self, bot_guid: str, X: List[str], y: List[int], epochs: int = settings.epochs) -> None:
+    async def train(self, bot_guid: str, X: List[str], y: List[int], epochs: int = settings.fit_epochs) -> None:
         """
         Обучение модели с нуля (создание нового файла)
         """
         X = await self.__prepare_data(X)
         model = await self.__build_model(output_dim=np.unique(y).shape[0])
-        for i in range(len(X)):
-            model.fit(np.array([X[i]]), np.array(y[i]).reshape(1, 1), epochs=epochs, verbose=False)
+        for _ in range(epochs):
+            for i in range(len(X)):
+                model.fit(np.array([X[i]]), np.array(y[i]).reshape(1, 1), verbose=settings.verbose)
         model.save(f'{settings.models_dir}/{bot_guid}.h5')
 
-    async def step(self, bot_guid: str, x: str, y: int, epochs: int = settings.epochs) -> None:
+    async def step(self, bot_guid: str, x: str, y: int, epochs: int = settings.step_epochs) -> None:
         """
         Шаг обучения
         """
         x = (await self.__prepare_data([x]))[0]
         model: tf.keras.Model = tf.keras.models.load_model(f'{settings.models_dir}/{bot_guid}.h5')
-        model.fit(np.array([x]), np.array(y).reshape(1, 1), epochs=epochs, verbose=False)
+        model.fit(np.array([x]), np.array(y).reshape(1, 1), epochs=epochs, verbose=settings.verbose)
         model.save(f'{settings.models_dir}/{bot_guid}.h5')
 
     async def delete_model(self, bot_guid: str) -> None:

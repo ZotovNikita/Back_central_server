@@ -21,9 +21,13 @@ class Settings(BaseSettings):
     admin_login: str
     admin_password: str
 
+    in_doubt_command: str = '/wrong'
+
     models_dir: str = 'storage/models'
     spacy_model_name: str = 'ru_core_news_lg'
-    epochs: int = 15
+    fit_epochs: int = 15
+    step_epochs: int = 5
+    verbose: bool = False
 
     class Config:
         env_file = '../.env'
