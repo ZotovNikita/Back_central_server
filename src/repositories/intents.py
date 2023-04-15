@@ -3,7 +3,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 from src.db.db import get_session
 from src.models.intents import Intents
-from src.models.schemas.intents.intents_request import IntentsRequestDB
+from src.models.schemas.intents.request import IntentsRequestDB
 
 
 class IntentsRepository:

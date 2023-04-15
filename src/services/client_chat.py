@@ -1,9 +1,10 @@
+from typing import List
 from fastapi import HTTPException, Depends
 from src.core.settings import settings
 from src.repositories.client_chat import ClientChatRepository
 from src.models.client_chat_log import ClientChatLog
 from src.models.intents import Intents
-from src.models.schemas.client_chat.client_chat_request import ClientChatRequest
+from src.models.schemas.client_chat.request import ClientChatRequest
 from src.services.intents import IntentsService
 from src.services.bots import BotsService
 
@@ -35,3 +36,9 @@ class ClientChatService:
         answer = await self.intents_service.find_intent_by_msg(request.bot_guid, request.message)
         await self.log(request, answer)
         return answer
+
+    async def get_bot_history(self, bot_guid: str) -> List[ClientChatLog]:
+        return await self.repo.get_all_by_bot_guid(bot_guid)
+
+    async def get_all_in_doubt_by_bot_guid(self, bot_guid: str) -> List[ClientChatLog]:
+        return await self.repo.get_all_by_doubt_status_and_bot_guid(True, bot_guid)

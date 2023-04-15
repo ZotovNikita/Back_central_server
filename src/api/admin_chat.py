@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from src.services.admin_chat import AdminChatService
 from src.models.schemas.admin_chat.request import AdminChatRequest
 from src.models.schemas.admin_chat.response import AdminChatResponse
-from src.models.schemas.intents.intents_response import IntentsResponse
+from src.models.schemas.intents.response import IntentsResponse
 from src.dependencies import AUTHORIZED
 
 

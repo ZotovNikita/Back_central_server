@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from fastapi import Depends
 from sqlalchemy.orm import Session
 from src.db.db import get_session
@@ -22,6 +22,26 @@ class ClientChatRepository:
             .first()
         )
         return record
+
+    async def get_all_by_bot_guid(self, bot_guid: str) -> List[ClientChatLog]:
+        records = (
+            self.session
+            .query(ClientChatLog)
+            .filter_by(bot_guid=bot_guid)
+            .order_by(ClientChatLog.created_at.asc())
+            .all()
+        )
+        return records
+
+    async def get_all_by_doubt_status_and_bot_guid(self, in_doubt: bool, bot_guid: str) -> List[ClientChatLog]:
+        records = (
+            self.session
+            .query(ClientChatLog)
+            .filter_by(in_doubt=in_doubt, bot_guid=bot_guid)
+            .order_by(ClientChatLog.created_at.asc())
+            .all()
+        )
+        return records
 
     async def update_doubt_status(self, record: ClientChatLog, in_doubt: bool) -> ClientChatLog:
         setattr(record, 'in_doubt', in_doubt)

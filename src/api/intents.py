@@ -2,8 +2,8 @@ from typing import List
 from pydantic import UUID4
 from fastapi import APIRouter, status, Depends
 from src.services.intents import IntentsService
-from src.models.schemas.intents.intents_request import IntentsRequestForm
-from src.models.schemas.intents.intents_response import IntentsResponse
+from src.models.schemas.intents.request import IntentsRequestForm
+from src.models.schemas.intents.response import IntentsResponse
 from src.dependencies import AUTHORIZED, ADMIN_ONLY
 
 

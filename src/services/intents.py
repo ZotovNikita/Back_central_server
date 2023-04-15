@@ -2,7 +2,7 @@ from typing import List
 from fastapi import HTTPException, status, Depends
 from src.repositories.intents import IntentsRepository
 from src.models.intents import Intents
-from src.models.schemas.intents.intents_request import IntentsRequestForm, IntentsRequestDB
+from src.models.schemas.intents.request import IntentsRequestForm, IntentsRequestDB
 from src.models.schemas.examples.request import ExamplesRequest
 from src.services.examples import ExamplesService
 from src.services.ml import MLService
