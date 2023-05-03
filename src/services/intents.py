@@ -1,5 +1,6 @@
 from typing import List
 from fastapi import HTTPException, status, Depends
+from src.core.settings import settings
 from src.repositories.intents import IntentsRepository
 from src.models.intents import Intents
 from src.models.schemas.intents.request import IntentsRequestForm, IntentsRequestDB
@@ -48,6 +49,9 @@ class IntentsService:
         return intent
 
     async def add(self, request: IntentsRequestForm, user: dict) -> Intents:
+        if request.name == settings.in_doubt_command:
+            raise HTTPException(status_code=473, detail=f'Название <{request.name}> зарезервировано')
+
         is_command = request.rank == -1
 
         if not is_command:

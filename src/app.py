@@ -52,7 +52,7 @@ app = FastAPI(
       
       Moral of the story: Не забывайте, что Swagger - это всего лишь инструмент для документирования вашего API, а не сам API.
     """,
-    version='0.3.1',
+    version='0.3.2',
     openapi_tags=tags,
     docs_url=settings.docs_url,
     redoc_url=settings.redoc_url,

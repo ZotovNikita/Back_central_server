@@ -31,7 +31,7 @@ class ClientChatService:
         if request.message == settings.in_doubt_command:
             if (last_message := await self.repo.get_last_by_bot_guid_and_client_id(request.bot_guid, request.client_id)):
                 await self.repo.update_doubt_status(last_message, True)
-            raise HTTPException(status_code=200, detail='Последнее сообщение клиента успешно отмечено как сомнительное')
+            raise HTTPException(status_code=273, detail='Последнее сообщение клиента успешно отмечено как сомнительное')
 
         answer = await self.intents_service.find_intent_by_msg(request.bot_guid, request.message)
         await self.log(request, answer)

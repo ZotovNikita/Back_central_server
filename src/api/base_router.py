@@ -11,3 +11,8 @@ base_router.include_router(client_chat.router)
 base_router.include_router(admin_chat.router)
 base_router.include_router(relations.router)
 base_router.include_router(ml.router)
+
+
+@base_router.get('/', name='Default page')
+async def default():
+    return 'You are great!'

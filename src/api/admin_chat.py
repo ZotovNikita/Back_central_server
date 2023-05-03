@@ -20,6 +20,6 @@ async def answer(request: AdminChatRequest, service: AdminChatService = Depends(
     return await service.answer(request, current_user)
 
 
-@router.get('/history', response_model=List[AdminChatResponse], name='Получить историю чата')
+@router.get('/history/{bot_guid}', response_model=List[AdminChatResponse], name='Получить историю чата')
 async def get_chat_history(bot_guid: UUID4, service: AdminChatService = Depends(), current_user: dict = Depends(AUTHORIZED)):
     return await service.get_chat_history(bot_guid, current_user)
