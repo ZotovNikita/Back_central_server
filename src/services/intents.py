@@ -52,18 +52,15 @@ class IntentsService:
         if request.name == settings.in_doubt_command:
             raise HTTPException(status_code=473, detail=f'Название <{request.name}> зарезервировано')
 
-        is_command = request.rank == -1
-
-        if not is_command:
-            request.rank = await self.find_intent_rank(request.bot_guid)
+        rank = -1 if request.is_command else await self.find_intent_rank(request.bot_guid)
 
         if await self.repo.get_by_bot_guid_and_name(request.bot_guid, request.name):
             raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                                 detail='Полученные данные конфликтуют с существующим интентом')
 
-        intent = await self.repo.add(request, user.get('user_guid'))
+        intent = await self.repo.add(IntentsRequestDB(**dict(request), rank=rank), user.get('user_guid'))
 
-        if not is_command:
+        if not request.is_command:
             for example in request.examples:
                 await self.examples_service.add(ExamplesRequest(intent_id=intent.id, text=example))
 
@@ -79,11 +76,19 @@ class IntentsService:
         for example in await self.examples_service.get_all_by_intent_id(intent.id):
             await self.examples_service.delete(example)
 
-        if request.rank != -1:
+        if not request.is_command:
             for example_text in request.examples:
                 await self.examples_service.add(ExamplesRequest(intent_id=intent.id, text=example_text))
 
-        return await self.repo.update(intent, IntentsRequestDB(**dict(request)))
+        if request.is_command == (intent.rank == -1):                       # intent.rank == -1, request.is_command OR intent.rank != -1, not request.is_command
+            rank = intent.rank
+        elif intent.rank == -1 and not request.is_command:                  # intent.rank == -1, not request.is_command
+            rank = await self.find_intent_rank(request.bot_guid)
+        else:                                                               # intent.rank != -1, request.is_command
+            rank = -1
+            await self.renumber_last_intent(request.bot_guid, intent.rank)
+
+        return await self.repo.update(intent, IntentsRequestDB(**dict(request), rank=rank))
 
     async def delete(self, intent: Intents) -> None:
         await self.repo.delete(intent)

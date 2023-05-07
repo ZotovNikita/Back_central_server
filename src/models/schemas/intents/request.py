@@ -5,7 +5,7 @@ from pydantic import BaseModel, UUID4
 class IntentsRequestForm(BaseModel):
     name: str
     answer: str
-    rank: Optional[int]
+    is_command: bool
     bot_guid: UUID4
     examples: Optional[List[str]]
 
